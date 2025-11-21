@@ -2,6 +2,8 @@
 
 **Big Fish** is a comprehensive guild management dashboard. It provides a centralized hub for tracking gear, managing MVP spawns, organizing events, and coordinating guild activities.
 
+Currently hosted here: https://bigfish.free.nf/
+
 ## Purpose
 
 - **Track Gear Storage**: Monitor borrowed guild equipment with borrowers, dates, and fee payment status
