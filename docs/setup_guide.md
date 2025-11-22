@@ -3,11 +3,33 @@
 Welcome to the Big Fish project! Here is how to get started.
 
 ## Prerequisites
+
 - [Python 3.10+](https://www.python.org/) (for the backend)
 - A code editor (VS Code recommended)
 - A web browser
 
-## Frontend (The Website)
+## Quick Start (Recommended)
+
+We have a script that starts everything for you!
+
+1. Ensure you have set up the backend first (see "Backend Setup" below).
+2. Run the start script from the root folder:
+   ```bash
+   python3 start_dev.py
+   ```
+   This will:
+   - Start the API server
+   - Open the website in your browser
+   - Show you server logs in the terminal
+
+---
+
+## Manual Setup
+
+If you prefer to run things manually:
+
+### Frontend (The Website)
+
 The frontend is currently a static HTML site.
 
 1. Navigate to the `client` folder:
@@ -18,32 +40,24 @@ The frontend is currently a static HTML site.
    - On Mac: `open index.html`
    - On Windows: Double-click the file
 
-## Backend (The Server)
+### Backend (The Server)
+
 We use **FastAPI** with Python.
 
 1. Navigate to the `server` folder:
    ```bash
    cd server
    ```
-2. Create a virtual environment:
-   ```bash
-   # Windows
-   python -m venv venv
-   .\venv\Scripts\activate
-
-   # Mac/Linux
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
-3. Install dependencies:
+2. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-4. Create your environment file:
+3. Create your environment file:
    ```bash
    cp .env.example .env
+   # Edit .env with your database credentials
    ```
-5. Start the server:
+4. Start the server:
    ```bash
    uvicorn app.main:app --reload
    ```
@@ -54,7 +68,6 @@ We use **FastAPI** with Python.
 
 - **client/**: Contains the HTML/CSS/JS for the user interface.
 - **server/**: Contains the Python FastAPI backend.
-    - **app/**: Main application code.
-    - **requirements.txt**: Python dependencies.
+  - **app/**: Main application code.
+  - **requirements.txt**: Python dependencies.
 - **docs/**: Documentation for developers.
-

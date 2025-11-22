@@ -4,17 +4,18 @@ This document outlines the planned API structure for the Big Fish application.
 
 ## Base URL
 
-`http://localhost:3000/api`
+`http://localhost:8000`
 
 ## MVPs
 
-| Method | Endpoint         | Description                       |
-| :----- | :--------------- | :-------------------------------- |
-| `GET`  | `/mvps`          | Get all MVP spawn times           |
-| `POST` | `/mvps/:id/kill` | Report an MVP kill (starts timer) |
-| `PUT`  | `/mvps/:id`      | Update MVP details                |
+| Method | Endpoint    | Description                                     |
+| :----- | :---------- | :---------------------------------------------- |
+| `GET`  | `/mvps`     | Get all tracked MVPs                            |
+| `POST` | `/mvps`     | Create a new MVP to track                       |
+| `GET`  | `/mvps/:id` | Get details of a specific MVP                   |
+| `PUT`  | `/mvps/:id` | Update an MVP (e.g. report kill, update status) |
 
-## Events
+## Events (Planned)
 
 | Method | Endpoint             | Description          |
 | :----- | :------------------- | :------------------- |
@@ -22,7 +23,7 @@ This document outlines the planned API structure for the Big Fish application.
 | `POST` | `/events`            | Create a new event   |
 | `POST` | `/events/:id/signup` | Sign up for an event |
 
-## Guild Bank
+## Guild Bank (Planned)
 
 | Method | Endpoint            | Description                 |
 | :----- | :------------------ | :-------------------------- |

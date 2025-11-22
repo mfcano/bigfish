@@ -93,7 +93,10 @@ docs/
 ```
 .gitignore              # Tells Git which files to ignore (node_modules, .env, etc.)
 README.md               # Project overview, features, and general info
+start_dev.py            # Helper script to launch backend + frontend together
 ```
+
+**`start_dev.py`**: A convenience script for developers. Running `python3 start_dev.py` will check your environment, start the API server, and open the website in your browser automatically.
 
 **`.gitignore`**: Prevents sensitive files (like `.env` with passwords) or generated files (like `__pycache__`) from being committed to Git.
 
