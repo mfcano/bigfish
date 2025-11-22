@@ -27,11 +27,12 @@ client/
 ```
 
 **What goes here:**
+
 - HTML, CSS, and JavaScript files
 - Images, icons, fonts
 - Any static assets users download
 
-**Future:** When you migrate to a framework (React, Vue, etc.), you'll replace the contents of this folder with the framework's project structure.
+**Future:** When we migrate to a framework (React, Vue, etc.), we'll replace the contents of this folder with the framework's project structure.
 
 ---
 
@@ -79,6 +80,7 @@ docs/
 ```
 
 **What goes here:**
+
 - API documentation
 - Setup instructions
 - Architecture decisions
@@ -120,14 +122,14 @@ README.md               # Project overview, features, and general info
 
 ## Quick Reference
 
-| Want to... | Go to... |
-|------------|----------|
-| Change the UI | `client/index.html` |
-| Add an API endpoint | `server/app/routes/` |
-| Define data structure | `server/app/models/` |
-| Write business logic | `server/app/controllers/` |
-| Configure database | `server/app/config/` |
-| Add dependencies | `server/requirements.txt` |
+| Want to...                | Go to...                                 |
+| ------------------------- | ---------------------------------------- |
+| Change the UI             | `client/index.html`                      |
+| Add an API endpoint       | `server/app/routes/`                     |
+| Define data structure     | `server/app/models/`                     |
+| Write business logic      | `server/app/controllers/`                |
+| Configure database        | `server/app/config/`                     |
+| Add dependencies          | `server/requirements.txt`                |
 | Set environment variables | `server/.env` (copy from `.env.example`) |
 
 ---
@@ -135,7 +137,7 @@ README.md               # Project overview, features, and general info
 ## Questions?
 
 If you're unsure where something should go:
+
 - **"Does this run in the browser?"** → `client/`
 - **"Does this run on the server?"** → `server/app/`
 - **"Is this documentation?"** → `docs/`
-
