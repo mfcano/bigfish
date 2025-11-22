@@ -784,8 +784,9 @@
                 currentTheme: 'dark',
                 serverTime: '',
                 localTime: '',
+                mvps: [],
                 
-                init() {
+                async init() {
                     // Restore saved tab
                     const savedTab = localStorage.getItem('currentTab');
                     if (savedTab) {
@@ -805,6 +806,38 @@
                     // Clock
                     this.updateTime();
                     setInterval(() => this.updateTime(), 1000);
+
+                    // Fetch MVPs
+                    await this.fetchMvps();
+                },
+                
+                async fetchMvps() {
+                    try {
+                        const response = await fetch('http://localhost:8000/mvps');
+                        const data = await response.json();
+                        
+                        // Transform API data to match frontend expectation
+                        this.mvps = data.map(mvp => ({
+                            id: mvp.mob_id,
+                            _id: mvp._id, // Keep internal ID for updates
+                            name: mvp.name,
+                            map: mvp.map_name,
+                            status: mvp.status,
+                            respawnTime: this.calculateRespawnDisplay(mvp),
+                            coords: 'Random' // Placeholder until we add coords to DB
+                        }));
+                    } catch (error) {
+                        console.error('Error fetching MVPs:', error);
+                    }
+                },
+
+                calculateRespawnDisplay(mvp) {
+                    if (mvp.status === 'alive') return 'Now';
+                    if (mvp.respawn_at) {
+                        // Logic to show time remaining would go here
+                        return new Date(mvp.respawn_at).toLocaleTimeString();
+                    }
+                    return `${mvp.spawn_delay}m`; // Fallback
                 },
                 
                 updateTime() {
@@ -930,83 +963,10 @@
                     { id: 4, name: 'Valkyrie Shield', borrower: 'TankBoii', date: '2025-05-15', paid: false },
                 ],
                 // MVP Database - Complete data from Discord bot
-                mvpDatabase: {
-                    1511: { name: 'Amon Ra', spawns: [{ map: 'moc_pryd06', x: 102, y: 85, delay: 60, variance: 10 }] },
-                    1785: { name: 'Atroce', spawns: [
-                        { map: 'ra_fild02', delay: 240, variance: 10 },
-                        { map: 'ra_fild03', delay: 180, variance: 10 },
-                        { map: 'ra_fild04', delay: 300, variance: 10 },
-                        { map: 've_fild01', delay: 180, variance: 10 },
-                        { map: 've_fild02', x: 120, y: 55, delay: 360, variance: 10 }
-                    ]},
-                    1399: { name: 'Baphomet', spawns: [{ map: 'prt_maze03', delay: 120, variance: 10 }] },
-                    1873: { name: 'Beelzebub', spawns: [{ map: 'abbey03', delay: 720, variance: 10 }] },
-                    1272: { name: 'Dark Lord', spawns: [
-                        { map: 'gl_chyard', delay: 60, variance: 10 },
-                        { map: 'gld_dun04', delay: 480, variance: 10 }
-                    ]},
-                    1719: { name: 'Detardeurus', spawns: [{ map: 'abyss_03', delay: 180, variance: 10 }] },
-                    1046: { name: 'Doppelganger', spawns: [
-                        { map: 'gef_dun02', delay: 120, variance: 10 },
-                        { map: 'gld_dun02', delay: 480, variance: 10 }
-                    ]},
-                    1389: { name: 'Dracula', spawns: [{ map: 'gef_dun01', delay: 60, variance: 10 }] },
-                    1112: { name: 'Drake', spawns: [{ map: 'treasure02', x: 101, y: 151, delay: 120, variance: 10 }] },
-                    1115: { name: 'Eddga', spawns: [
-                        { map: 'gld_dun01', delay: 480, variance: 10 },
-                        { map: 'pay_fild11', delay: 120, variance: 10 }
-                    ]},
-                    1658: { name: 'Egnigem Cenia', spawns: [{ map: 'lhz_dun02', delay: 120, variance: 10 }] },
-                    1418: { name: 'Evil Snake Lord', spawns: [{ map: 'gon_dun03', delay: 94, variance: 10 }] },
-                    1871: { name: 'Fallen Bishop Hibram', spawns: [{ map: 'abbey02', x: 236, y: 78, delay: 120, variance: 10 }] },
-                    1252: { name: 'Garm', spawns: [{ map: 'xmas_fild01', delay: 120, variance: 10 }] },
-                    1768: { name: 'Gloom Under Night', spawns: [{ map: 'ra_san05', delay: 300, variance: 10 }] },
-                    1086: { name: 'Golden Thief Bug', spawns: [{ map: 'prt_sewb4', delay: 60, variance: 10 }] },
-                    1885: { name: 'Gopinich', spawns: [{ map: 'mosk_dun03', x: 207, y: 221, delay: 120, variance: 10 }] },
-                    1832: { name: 'Ifrit', spawns: [{ map: 'thor_v03', delay: 660, variance: 10 }] },
-                    1734: { name: 'Kiel D-01', spawns: [{ map: 'kh_dun02', delay: 120, variance: 20 }] },
-                    1688: { name: 'Lady Tanee', spawns: [{ map: 'ayo_dun02', x: 150, y: 90, delay: 420, variance: 10 }] },
-                    1373: { name: 'Lord of Death', spawns: [{ map: 'niflheim', delay: 133, variance: 0 }] },
-                    1147: { name: 'Maya', spawns: [
-                        { map: 'anthell02', delay: 120, variance: 10 },
-                        { map: 'gld_dun03', delay: 480, variance: 10 }
-                    ]},
-                    1059: { name: 'Mistress', spawns: [{ map: 'mjolnir_04', delay: 120, variance: 10 }] },
-                    1814: { name: 'Moonlight Flower', spawns: [{ map: 'pay_dun04', x: 120, y: 115, delay: 60, variance: 10 }] },
-                    1087: { name: 'Orc Hero', spawns: [
-                        { map: 'gef_fild02', delay: 1440, variance: 10 },
-                        { map: 'gef_fild14', delay: 60, variance: 10 }
-                    ]},
-                    1190: { name: 'Orc Lord', spawns: [{ map: 'gef_fild10', delay: 120, variance: 10 }] },
-                    1038: { name: 'Osiris', spawns: [{ map: 'moc_pryd04', delay: 60, variance: 10 }] },
-                    1157: { name: 'Pharaoh', spawns: [{ map: 'in_sphinx5', delay: 60, variance: 10 }] },
-                    1159: { name: 'Phreeoni', spawns: [{ map: 'moc_fild17', delay: 120, variance: 10 }] },
-                    1623: { name: 'RSX-0806', spawns: [{ map: 'ein_dun02', delay: 125, variance: 10 }] },
-                    1492: { name: 'Samurai Specter', spawns: [{ map: 'ama_dun03', delay: 91, variance: 10 }] },
-                    1251: { name: 'Stormy Knight', spawns: [{ map: 'xmas_dun02', delay: 60, variance: 10 }] },
-                    1583: { name: 'Tao Gunka', spawns: [{ map: 'beach_dun', delay: 300, variance: 10 }] },
-                    1312: { name: 'Turtle General', spawns: [{ map: 'tur_dun04', x: 99, y: 93, delay: 60, variance: 10 }] },
-                    1751: { name: 'Valkyrie Randgris', spawns: [{ map: 'odin_tem03', delay: 480, variance: 10 }] },
-                    1685: { name: 'Vesper', spawns: [{ map: 'jupe_core', delay: 120, variance: 10 }] },
-                    1630: { name: 'White Lady', spawns: [{ map: 'lou_dun03', delay: 117, variance: 10 }] },
-                    1917: { name: 'Wounded Satan Morroc', spawns: [{ map: 'moc_fild22', delay: 720, variance: 60 }] },
-                    2202: { name: 'Kraken', spawns: [{ map: 'iz_dun05', delay: 135, variance: 15 }] }
-                },
+                // Removed hardcoded mvpDatabase
+
                 // Active MVP timers (mock data for demo)
-                mvps: [
-                    { id: 1039, name: 'Baphomet', map: 'prt_maze03', status: 'alive', respawnTime: 'Now', coords: 'Random' },
-                    { id: 1046, name: 'Doppelganger', map: 'gef_dun02', status: 'dead', respawnTime: '~14 min', coords: 'Random' },
-                    { id: 1086, name: 'Golden Thief Bug', map: 'prt_sewb4', status: 'alive', respawnTime: 'Now', coords: 'Random' },
-                    { id: 1147, name: 'Maya', map: 'anthell02', status: 'dead', respawnTime: '1h 20m', coords: 'Random' },
-                    { id: 1150, name: 'Moonlight Flower', map: 'pay_dun04', status: 'alive', respawnTime: 'Now', coords: '(120, 115)' },
-                    { id: 1159, name: 'Phreeoni', map: 'moc_fild17', status: 'dead', respawnTime: '45 min', coords: 'Random' },
-                    { id: 1511, name: 'Amon Ra', map: 'moc_pryd06', status: 'alive', respawnTime: 'Now', coords: '(102, 85)' },
-                    { id: 1389, name: 'Dracula', map: 'gef_dun01', status: 'dead', respawnTime: '30 min', coords: 'Random' },
-                    { id: 1115, name: 'Eddga', map: 'pay_fild11', status: 'alive', respawnTime: 'Now', coords: 'Random' },
-                    { id: 1112, name: 'Drake', map: 'treasure02', status: 'dead', respawnTime: '1h 10m', coords: '(101, 151)' },
-                    { id: 1157, name: 'Pharaoh', map: 'in_sphinx5', status: 'alive', respawnTime: 'Now', coords: 'Random' },
-                    { id: 1312, name: 'Turtle General', map: 'tur_dun04', status: 'dead', respawnTime: '52 min', coords: '(99, 93)' },
-                ],
+                // Removed hardcoded mvps array
                 events: [
                     { 
                         id: 1, 
@@ -1057,30 +1017,33 @@
                     }
                 ],
                 getMvpRespawnInfo(mvpId) {
-                    const mvpData = this.mvpDatabase[mvpId];
-                    if (!mvpData || !mvpData.spawns || mvpData.spawns.length === 0) {
-                        return 'Unknown';
-                    }
-                    const spawn = mvpData.spawns[0];
-                    const minDelay = spawn.delay;
-                    const maxDelay = spawn.delay + spawn.variance;
-                    return `${minDelay}-${maxDelay} min`;
+                    // Simple placeholder since detailed data is now server-side or handled differently
+                    const mvp = this.mvps.find(m => m.id === mvpId);
+                    return mvp ? 'Variance info unavailable' : 'Unknown';
                 },
-                reportKill(mvp) {
-                    mvp.status = 'dead';
-                    mvp.respawnTime = 'Calculating...';
-                    // Simulate server update with actual respawn data
-                    setTimeout(() => {
-                        const mvpData = this.mvpDatabase[mvp.id];
-                        if (mvpData && mvpData.spawns && mvpData.spawns.length > 0) {
-                            const spawn = mvpData.spawns.find(s => s.map === mvp.map) || mvpData.spawns[0];
-                            const minDelay = spawn.delay;
-                            const maxDelay = spawn.delay + spawn.variance;
-                            mvp.respawnTime = `${minDelay}-${maxDelay} min`;
-                        } else {
-                            mvp.respawnTime = '~2h 00m';
+                async reportKill(mvp) {
+                   try {
+                        // Optimistic update
+                        mvp.status = 'dead';
+                        mvp.respawnTime = 'Calculating...';
+                        
+                        // Send update to server
+                        const response = await fetch(`http://localhost:8000/mvps/${mvp._id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                status: 'dead',
+                                // In a real app, we might calculate respawn_at here or let backend do it
+                            })
+                        });
+                        
+                        if (response.ok) {
+                            // Refresh data to get calculated times
+                            await this.fetchMvps();
                         }
-                    }, 500);
+                   } catch (error) {
+                       console.error('Error reporting kill:', error);
+                   }
                 },
                 vote(pollId, optionId) {
                     alert('Vote cast! (This is a frontend demo)');

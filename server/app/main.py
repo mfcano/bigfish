@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
+from app.config.database import init_db
+from app.routes import mvp
 
 # Load environment variables
 load_dotenv()
@@ -11,6 +13,12 @@ app = FastAPI(
     description="Backend for Big Fish Guild Management",
     version="1.0.0"
 )
+
+@app.on_event("startup")
+async def start_db():
+    await init_db()
+
+app.include_router(mvp.router)
 
 # CORS Middleware
 app.add_middleware(
