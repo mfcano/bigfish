@@ -538,7 +538,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <template x-for="mvp in mvps" :key="mvp.id">
+                                    <template x-for="mvp in mvps" :key="mvp._id">
                                         <tr>
                                             <td class="font-bold">
                                                 <a :href="`https://ratemyserver.net/index.php?page=mob_db&mob_id=${mvp.id}`" 
@@ -561,7 +561,7 @@
                 </div>
 
                 <!-- Grid Cards (Hidden in RMS mode) -->
-                <template x-for="mvp in mvps" :key="`card-${mvp.id}`">
+                <template x-for="mvp in mvps" :key="`card-${mvp._id}`">
                     <div class="rounded-xl overflow-hidden shadow-lg border group transition-all duration-300 relative p-4 min-h-[360px] flex flex-col"
                          x-show="currentTheme !== 'rms'"
                          :class="{'bg-white border-slate-200 hover:border-red-500': currentTheme === 'light', 'bg-black border-slate-800 hover:border-red-500': currentTheme === 'dark', 'bg-[#2a2438] border-pink-500/20 hover:border-pink-400 hover:shadow-[0_0_20px_rgba(236,72,153,0.3)]': currentTheme === 'cute', 'bg-[#0000FF] border-4 border-[#FFFF00] rounded-none shadow-none': currentTheme === 'mesi'}">
@@ -819,7 +819,7 @@
                         // Transform API data to match frontend expectation
                         this.mvps = data.map(mvp => ({
                             id: mvp.mob_id,
-                            _id: mvp._id, // Keep internal ID for updates
+                            _id: mvp._id || mvp.id, // Keep internal ID for updates (handle both _id and id)
                             name: mvp.name,
                             map: mvp.map_name,
                             status: mvp.status,

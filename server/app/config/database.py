@@ -2,6 +2,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from beanie import init_beanie
 from typing import List
 import os
+import certifi
 
 # Import models here (we will add them as we create them)
 from app.models.mvp import Mvp
@@ -12,8 +13,11 @@ async def init_db():
     mongo_uri = os.getenv("MONGODB_URI", "mongodb://localhost:27017/bigfish")
     database_name = os.getenv("DATABASE_NAME", "bigfish")
 
-    # Create Motor client
-    client = AsyncIOMotorClient(mongo_uri)
+    # Create Motor client with SSL context
+    client = AsyncIOMotorClient(
+        mongo_uri,
+        tlsCAFile=certifi.where()
+    )
 
     # Initialize Beanie with the database and models
     await init_beanie(
