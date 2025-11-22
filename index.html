@@ -382,7 +382,7 @@
                             <i class="fa-solid fa-skull text-red-400"></i>
                         </div>
                         <div class="flex items-center justify-between">
-                             <p class="text-3xl font-bold" :class="getTextClass()">3</p>
+                            <p class="text-3xl font-bold" :class="getTextClass()" x-text="activeMvps.length"></p>
                              <i class="fa-solid fa-skull text-red-600" x-show="currentTheme === 'rms'"></i>
                         </div>
                         <p class="text-sm mt-2" :class="getSubTextClass()">Bosses currently spawned</p>
@@ -515,9 +515,11 @@
                     MVP Tracker
                 </h2>
                 <div class="flex space-x-2">
+                    <!-- Set Alerts removed (unused) -->
                     <button class="text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md transition-colors"
-                            :class="{'bg-red-600 hover:bg-red-700': currentTheme !== 'rms' && currentTheme !== 'mesi', 'bg-[#FF0000] text-[#FFFF00] border-2 border-white font-bold animate-pulse': currentTheme === 'mesi', 'btn-primary px-2 py-0.5': currentTheme === 'rms'}">
-                        <i class="fa-solid fa-bell mr-2"></i> Set Alerts
+                            :class="{'bg-slate-600 hover:bg-slate-700': currentTheme !== 'rms', 'bg-[#000000] text-[#FFFF00]': currentTheme === 'mesi'}"
+                            @click="untrackAll()">
+                        <i class="fa-solid fa-trash-can mr-2"></i> Untrack All
                     </button>
                 </div>
             </div>
@@ -538,7 +540,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <template x-for="mvp in mvps" :key="mvp.id">
+                                    <template x-for="(mvp, idx) in activeMvps" :key="idx + '-' + mvp.id + '-' + (mvp.map || '')">
                                         <tr>
                                             <td class="font-bold">
                                                 <a :href="`https://ratemyserver.net/index.php?page=mob_db&mob_id=${mvp.id}`" 
@@ -550,7 +552,7 @@
                                             <td class="text-center"><span x-text="mvp.status" class="font-bold uppercase" :class="mvp.status === 'alive' ? 'text-[green]' : 'text-[red]'"></span></td>
                                             <td class="text-center font-bold" x-text="mvp.respawnTime"></td>
                                             <td class="text-center">
-                                                <button class="btn-primary px-1" @click="reportKill(mvp)">[ Report ]</button>
+                                                <button class="btn-primary px-1" @click="removeActiveMvp(idx)">[ Untrack ]</button>
                                             </td>
                                         </tr>
                                     </template>
@@ -561,7 +563,7 @@
                 </div>
 
                 <!-- Grid Cards (Hidden in RMS mode) -->
-                <template x-for="mvp in mvps" :key="`card-${mvp.id}`">
+                <template x-for="(mvp, idx) in activeMvps" :key="idx + '-' + mvp.id + '-' + (mvp.map || '')">
                     <div class="rounded-xl overflow-hidden shadow-lg border group transition-all duration-300 relative p-4 min-h-[360px] flex flex-col"
                          x-show="currentTheme !== 'rms'"
                          :class="{'bg-white border-slate-200 hover:border-red-500': currentTheme === 'light', 'bg-black border-slate-800 hover:border-red-500': currentTheme === 'dark', 'bg-[#2a2438] border-pink-500/20 hover:border-pink-400 hover:shadow-[0_0_20px_rgba(236,72,153,0.3)]': currentTheme === 'cute', 'bg-[#0000FF] border-4 border-[#FFFF00] rounded-none shadow-none': currentTheme === 'mesi'}">
@@ -599,6 +601,7 @@
                                    target="_blank"
                                    class="text-xl font-bold transition-colors hover:underline text-white group-hover:text-red-400" 
                                    x-text="mvp.name"></a>
+                                <div class="text-xs mt-1" :class="getSubTextClass()">ID: <span x-text="mvp.id"></span></div>
                             </div>
                             
                             <!-- Map & Location -->
@@ -608,23 +611,176 @@
                                 <p class="text-xs" :class="getSubTextClass()" x-text="mvp.coords"></p>
                             </div>
                             
+                            <!-- Respawn Countdown -->
+                            <div class="mb-3">
+                                <p class="text-sm font-bold" :class="{'text-guild-accent': currentTheme !== 'rms' && currentTheme !== 'cute' && currentTheme !== 'mesi', 'text-pink-400': currentTheme === 'cute', 'text-[#FFFF00] bg-[#FF00FF] px-1 inline-block': currentTheme === 'mesi'}" x-text="mvp.respawnTime"></p>
+                            </div>
+
                             <!-- Respawn Window -->
                             <div class="mb-3">
                                 <p class="text-xs uppercase" :class="getSubTextClass()">Respawn Window</p>
-                                <p class="text-sm font-bold" :class="{'text-guild-accent': currentTheme !== 'rms' && currentTheme !== 'cute' && currentTheme !== 'mesi', 'text-pink-400': currentTheme === 'cute', 'text-[#FFFF00] bg-[#FF00FF] px-1 inline-block': currentTheme === 'mesi'}" x-text="mvp.respawnTime"></p>
                                 <p class="text-xs" :class="getSubTextClass()" x-text="getMvpRespawnInfo(mvp.id)"></p>
                             </div>
                             
                             <!-- Report Kill Button -->
                             <button class="w-full py-2 rounded transition-colors text-sm font-medium"
                                     :class="{'bg-slate-100 hover:bg-red-500 hover:text-white text-slate-700': currentTheme === 'light', 'bg-slate-700 hover:bg-red-600 text-slate-200': currentTheme === 'dark', 'bg-pink-900/30 hover:bg-pink-500 hover:text-white text-pink-200 border border-pink-500/20': currentTheme === 'cute', 'bg-[#FF00FF] text-[#FFFF00] border-4 border-[#00FF00] font-black hover:bg-[#FFFF00] hover:text-[#FF0000] hover:border-[#000000]': currentTheme === 'mesi'}"
-                                    @click="reportKill(mvp)">
+                                    @click="removeActiveMvp(idx)">
+                                Untrack
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- All MVPs (browse & track) -->
+        <div class="mt-8" x-show="currentTab === 'mvp'">
+            <h3 class="text-2xl font-bold mb-4" :class="getTextClass()">All MVPs</h3>
+            <div class="flex justify-center mb-4">
+                <div class="w-full max-w-2xl flex items-center gap-3">
+                    <div class="relative w-full">
+                        <input x-ref="mvpSearchInput" type="search" placeholder="Search by name or ID" x-model="mvpSearch" class="w-full px-3 py-2 rounded border" :class="getCardClass()" />
+                        <button type="button" title="Clear search" @click="mvpSearch=''; $refs.mvpSearchInput.focus()" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-sm px-2 py-1 rounded bg-slate-200 dark:bg-guild-700">
+                            ✕
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm" :class="getSubTextClass()">Sort</label>
+                        <select x-model="mvpSortBy" class="px-2 py-1 rounded border" :class="getCardClass()">
+                            <option value="name">Name</option>
+                            <option value="id">ID</option>
+                        </select>
+                        <select x-model="mvpSortDir" class="px-2 py-1 rounded border" :class="getCardClass()">
+                            <option value="asc">Asc</option>
+                            <option value="desc">Desc</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <template x-for="m in filteredAll()" :key="`all-mvp-${m.id}`">
+                    <div class="rounded-xl overflow-hidden shadow-lg border group transition-all duration-300 relative p-4 min-h-[360px] flex flex-col"
+                         :class="{'bg-white border-slate-200 hover:border-red-500': currentTheme === 'light', 'bg-black border-slate-800 hover:border-red-500': currentTheme === 'dark', 'bg-[#2a2438] border-pink-500/20 hover:border-pink-400 hover:shadow-[0_0_20px_rgba(236,72,153,0.3)]': currentTheme === 'cute', 'bg-[#0000FF] border-4 border-[#FFFF00] rounded-none shadow-none': currentTheme === 'mesi'}">
+
+                        <!-- Top Gradient for Cute Mode -->
+                        <div class="absolute top-0 inset-x-0 h-80 bg-gradient-to-b from-black to-transparent pointer-events-none z-5" x-show="currentTheme === 'cute'"></div>
+
+                        <!-- MVP Sprite from iRO Wiki (same as active) -->
+                        <img :src="`https://db.irowiki.org/image/monster/${m.id}.png`"
+                             :alt="m.name"
+                             class="pixelated absolute z-10"
+                             style="image-rendering: pixelated; image-rendering: -moz-crisp-edges; image-rendering: crisp-edges; max-height: 68px; left: 70%; top: 45%; transform: translate(-50%, -50%) scale(2.5);"
+                             @error="$event.target.style.display='none'">
+
+                        <!-- Gradient overlay (match active card) -->
+                        <div class="absolute inset-x-0 pointer-events-none z-20"
+                             :class="{'top-0 h-32 bg-gradient-to-b from-slate-300 to-transparent': currentTheme === 'light', 'bottom-0 h-[28rem] bg-gradient-to-t from-slate-900 to-transparent': currentTheme === 'dark', 'bottom-0 h-[28rem] bg-gradient-to-t from-[#2a2438] to-transparent': currentTheme === 'cute'}"></div>
+
+                        <!-- Status badge -->
+                        <div class="absolute top-2 right-2 z-30">
+                            <span :class="getTrackedStatusClass(m)" class="px-2 py-1 rounded text-xs font-bold uppercase" x-text="getTrackedStatusText(m)"></span>
+                        </div>
+
+                        <div class="flex-grow"></div>
+
+                        <div class="z-30 relative">
+                            <!-- MVP Name -->
+                            <div class="mb-2">
+                                <a :href="`https://ratemyserver.net/index.php?page=mob_db&mob_id=${m.id}`"
+                                   target="_blank"
+                                   class="text-xl font-bold transition-colors hover:underline text-white group-hover:text-red-400"
+                                   x-text="m.name"></a>
+                                <div class="text-xs mt-1" :class="getSubTextClass()">ID: <span x-text="m.id"></span></div>
+                            </div>
+
+                            <!-- Map & Location: show single spawn or 'Multiple spawns — click Report' -->
+                            <div class="mb-3">
+                                <p class="text-xs uppercase" :class="getSubTextClass()">Map & Location</p>
+                                <template x-if="m.spawns && m.spawns.length === 1 && !m.spawns[0].coordsList">
+                                    <p class="text-sm font-medium" :class="getTextClass()" x-text="m.spawns[0].map"></p>
+                                    <p class="text-xs" :class="getSubTextClass()" x-text="(m.spawns[0].x !== undefined ? '(' + m.spawns[0].x + ', ' + m.spawns[0].y + ')' : 'Random')"></p>
+                                </template>
+                                <template x-if="m.spawns && m.spawns.length === 1 && m.spawns[0].coordsList">
+                                    <p class="text-sm font-medium" :class="getTextClass()" x-text="m.spawns[0].map"></p>
+                                    <p class="text-xs" :class="getSubTextClass()">Can spawn on: <span x-text="getCoordsText(m.spawns[0])"></span></p>
+                                </template>
+                                <template x-if="!m.spawns || m.spawns.length === 0">
+                                    <p class="text-sm font-medium" :class="getTextClass()">Unknown</p>
+                                </template>
+                            </div>
+
+                            <!-- Respawn Window -->
+                            <div class="mb-3">
+                                <p class="text-xs uppercase" :class="getSubTextClass()">Respawn Window</p>
+                                <p class="text-sm font-bold" :class="{'text-guild-accent': currentTheme !== 'rms' && currentTheme !== 'cute' && currentTheme !== 'mesi', 'text-pink-400': currentTheme === 'cute', 'text-[#FFFF00] bg-[#FF00FF] px-1 inline-block': currentTheme === 'mesi'}" x-text="getMvpRespawnInfo(m.id)"></p>
+                                <p class="text-xs" :class="getSubTextClass()">&nbsp;</p>
+                            </div>
+
+                            <!-- Report Kill Button -->
+                                <button class="w-full py-2 rounded transition-colors text-sm font-medium"
+                                    :class="{'bg-slate-100 hover:bg-red-500 hover:text-white text-slate-700': currentTheme === 'light', 'bg-slate-700 hover:bg-red-600 text-slate-200': currentTheme === 'dark', 'bg-pink-900/30 hover:bg-pink-500 hover:text-white text-pink-200 border border-pink-500/20': currentTheme === 'cute', 'bg-[#FF00FF] text-[#FFFF00] border-4 border-[#00FF00] font-black hover:bg-[#FFFF00] hover:text-[#FF0000] hover:border-[#000000]': currentTheme === 'mesi'}"
+                                    :disabled="((m.spawns && m.spawns.length === 1) ? isTrackedOnMap(m.id, m.spawns[0].map) : false) || (isBioLab3Id(m.id) && isAnyBioLab3Tracked() && !isTracked(m))"
+                                    @click="addMvpToTracker(m.id, true)">
                                 Report Kill
                             </button>
                         </div>
                     </div>
                 </template>
             </div>
+
+            <!-- Spawn selection modal -->
+            <div x-show="spawnSelection.open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center">
+                <div class="absolute inset-0 bg-black/50 z-40" @click.self="spawnSelection.open = false"></div>
+                <div class="bg-white dark:bg-guild-800 rounded-lg p-6 z-50 max-w-lg w-full" :class="getCardClass()" @click.stop>
+                    <h4 class="text-lg font-bold mb-3" :class="getTextClass()">Select spawn for <span x-text="spawnSelection.mvpName"></span></h4>
+                    <div class="space-y-2 max-h-64 overflow-y-auto">
+                            <template x-for="choice in spawnSelection.choices" :key="choice.index">
+                            <div class="flex justify-between items-center p-2 border rounded" :class="getCardClass()">
+                                <div>
+                                    <div class="font-semibold" x-text="choice.map"></div>
+                                    <div class="text-xs" :class="getSubTextClass()" x-text="choice.coords"></div>
+                                </div>
+                                <div>
+                                    <button class="btn-primary px-3 py-1" @click.stop="confirmSpawnSelection(choice)">Select</button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="mt-4 text-right">
+                        <button class="px-3 py-1" @click="spawnSelection.open = false">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+                <!-- Toasts -->
+                <div class="fixed top-[60px] left-1/2 transform -translate-x-1/2 space-y-2 w-full max-w-md px-4" style="z-index:9999;" aria-live="polite">
+                    <template x-for="t in toasts" :key="t.id">
+                        <div x-cloak x-show="t.visible" x-transition class="max-w-sm w-full rounded shadow-lg p-3 flex items-start space-x-3" :class="t.type === 'success' ? 'bg-green-700 text-white' : t.type === 'warning' ? 'bg-yellow-600 text-black' : 'bg-slate-800 text-white'">
+                            <div class="flex-1">
+                                <div class="font-semibold" x-text="t.title || (t.type === 'warning' ? 'Warning' : (t.type === 'success' ? 'Success' : 'Info'))"></div>
+                                <div class="text-sm" x-text="t.message"></div>
+                            </div>
+                            <div class="ml-2">
+                                <button class="px-2 py-1" @click="removeToast(t.id)">✕</button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Confirm modal (non-blocking) -->
+                <div x-show="confirmDialog.open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center">
+                    <div class="absolute inset-0 bg-black/50" @click.self="confirmDialog.open = false"></div>
+                    <div class="bg-white dark:bg-guild-800 rounded-lg p-6 z-50 max-w-md w-full" :class="getCardClass()" @click.stop>
+                        <h4 class="text-lg font-bold mb-2" :class="getTextClass()" x-text="confirmDialog.title"></h4>
+                        <p class="mb-4" :class="getSubTextClass()" x-text="confirmDialog.message"></p>
+                        <div class="flex justify-end space-x-2">
+                            <button class="px-3 py-1" @click="confirmDialog.open = false">Cancel</button>
+                            <button class="px-3 py-1 btn-primary" @click="(confirmDialog.onConfirm && confirmDialog.onConfirm()); confirmDialog.open = false">Confirm</button>
+                        </div>
+                    </div>
+                </div>
+
         </div>
 
         <!-- Events Section -->
@@ -801,10 +957,16 @@
                         this.currentTheme = 'dark';
                     }
                     this.applyTheme();
+                    // Build the full MVP list from the database
+                    this.buildAllMvps();
+                    // Load persisted active trackers from localStorage
+                    this.loadActiveMvps();
                     
                     // Clock
                     this.updateTime();
                     setInterval(() => this.updateTime(), 1000);
+                    // Respawn ticker (updates countdowns)
+                    this.startRespawnTicker();
                 },
                 
                 updateTime() {
@@ -816,6 +978,43 @@
                 setTab(tabId) {
                     this.currentTab = tabId;
                     localStorage.setItem('currentTab', tabId);
+                    // Proactively request Notification permission the first time the user opens the MVP tracker
+                    if (tabId === 'mvp') {
+                        try { this.requestNotificationsIfNeeded(); } catch (e) { /* ignore */ }
+                    }
+                },
+
+                // Request browser Notification permission once (saved in localStorage)
+                requestNotificationsIfNeeded() {
+                    try {
+                        if (!('Notification' in window)) return;
+                        const flag = localStorage.getItem('bigfish_notif_request_v1');
+                        if (flag) return; // already requested
+                        // If already granted or denied, store a flag but still notify user of blocked state
+                        if (Notification.permission === 'granted') {
+                            localStorage.setItem('bigfish_notif_request_v1', '1');
+                            this.showToast('Notifications are already enabled', 'success');
+                            return;
+                        }
+                        if (Notification.permission === 'denied') {
+                            localStorage.setItem('bigfish_notif_request_v1', '1');
+                            this.showToast('Browser notifications are blocked — enable in browser settings to receive alerts', 'warning');
+                            return;
+                        }
+                        // permission is 'default' — ask the user (browser prompt)
+                        Notification.requestPermission().then(p => {
+                            localStorage.setItem('bigfish_notif_request_v1', '1');
+                            if (p === 'granted') {
+                                this.showToast('Notifications enabled', 'success');
+                            } else {
+                                this.showToast('Notifications denied or dismissed', 'warning');
+                            }
+                        }).catch(() => {
+                            localStorage.setItem('bigfish_notif_request_v1', '1');
+                        });
+                    } catch (e) {
+                        console.warn('requestNotificationsIfNeeded failed', e);
+                    }
                 },
 
                 setTheme(theme) {
@@ -939,7 +1138,7 @@
                         { map: 've_fild01', delay: 180, variance: 10 },
                         { map: 've_fild02', x: 120, y: 55, delay: 360, variance: 10 }
                     ]},
-                    1399: { name: 'Baphomet', spawns: [{ map: 'prt_maze03', delay: 120, variance: 10 }] },
+                    1039: { name: 'Baphomet', spawns: [{ map: 'prt_maze03', delay: 120, variance: 10 }] },
                     1873: { name: 'Beelzebub', spawns: [{ map: 'abbey03', delay: 720, variance: 10 }] },
                     1272: { name: 'Dark Lord', spawns: [
                         { map: 'gl_chyard', delay: 60, variance: 10 },
@@ -972,7 +1171,7 @@
                         { map: 'gld_dun03', delay: 480, variance: 10 }
                     ]},
                     1059: { name: 'Mistress', spawns: [{ map: 'mjolnir_04', delay: 120, variance: 10 }] },
-                    1814: { name: 'Moonlight Flower', spawns: [{ map: 'pay_dun04', x: 120, y: 115, delay: 60, variance: 10 }] },
+                    1150: { name: 'Moonlight Flower', spawns: [{ map: 'pay_dun04', x: 120, y: 115, delay: 60, variance: 10 }] },
                     1087: { name: 'Orc Hero', spawns: [
                         { map: 'gef_fild02', delay: 1440, variance: 10 },
                         { map: 'gef_fild14', delay: 60, variance: 10 }
@@ -991,22 +1190,50 @@
                     1630: { name: 'White Lady', spawns: [{ map: 'lou_dun03', delay: 117, variance: 10 }] },
                     1917: { name: 'Wounded Satan Morroc', spawns: [{ map: 'moc_fild22', delay: 720, variance: 60 }] },
                     2202: { name: 'Kraken', spawns: [{ map: 'iz_dun05', delay: 135, variance: 15 }] }
+                    ,
+                    // Special: Bio Lab 3 MVPs (multiple possible bosses, random spawn)
+                    'bio_lab_3': {
+                        name: 'Bio Lab 3 MVP',
+                        possible_mvps: [
+                            'Assassin Cross Eremes',
+                            'High Priest Margaretha',
+                            'High Wizard Kathryne',
+                            'Lord Knight Seyren',
+                            'Sniper Cecil',
+                            'Whitesmith Howard'
+                        ],
+                        mvp_ids: {
+                            'Assassin Cross Eremes': 1647,
+                            'High Priest Margaretha': 1649,
+                            'High Wizard Kathryne': 1651,
+                            'Lord Knight Seyren': 1646,
+                            'Sniper Cecil': 1650,
+                            'Whitesmith Howard': 1648
+                        },
+                        coordinates: [
+                            [139,158],
+                            [139,117],
+                            [114,138],
+                            [163,138],
+                            [138,138],
+                            [138,138]
+                        ],
+                        delay: 100,
+                        variance: 30,
+                        map: 'lhz_dun03'
+                    }
                 },
-                // Active MVP timers (mock data for demo)
-                mvps: [
-                    { id: 1039, name: 'Baphomet', map: 'prt_maze03', status: 'alive', respawnTime: 'Now', coords: 'Random' },
-                    { id: 1046, name: 'Doppelganger', map: 'gef_dun02', status: 'dead', respawnTime: '~14 min', coords: 'Random' },
-                    { id: 1086, name: 'Golden Thief Bug', map: 'prt_sewb4', status: 'alive', respawnTime: 'Now', coords: 'Random' },
-                    { id: 1147, name: 'Maya', map: 'anthell02', status: 'dead', respawnTime: '1h 20m', coords: 'Random' },
-                    { id: 1150, name: 'Moonlight Flower', map: 'pay_dun04', status: 'alive', respawnTime: 'Now', coords: '(120, 115)' },
-                    { id: 1159, name: 'Phreeoni', map: 'moc_fild17', status: 'dead', respawnTime: '45 min', coords: 'Random' },
-                    { id: 1511, name: 'Amon Ra', map: 'moc_pryd06', status: 'alive', respawnTime: 'Now', coords: '(102, 85)' },
-                    { id: 1389, name: 'Dracula', map: 'gef_dun01', status: 'dead', respawnTime: '30 min', coords: 'Random' },
-                    { id: 1115, name: 'Eddga', map: 'pay_fild11', status: 'alive', respawnTime: 'Now', coords: 'Random' },
-                    { id: 1112, name: 'Drake', map: 'treasure02', status: 'dead', respawnTime: '1h 10m', coords: '(101, 151)' },
-                    { id: 1157, name: 'Pharaoh', map: 'in_sphinx5', status: 'alive', respawnTime: 'Now', coords: 'Random' },
-                    { id: 1312, name: 'Turtle General', map: 'tur_dun04', status: 'dead', respawnTime: '52 min', coords: '(99, 93)' },
-                ],
+                // Active MVP timers (managed list) and full list built from `mvpDatabase`
+                activeMvps: [],
+                allMvps: [],
+                // Search / sort UI for All MVPs
+                mvpSearch: '',
+                mvpSortBy: 'name',
+                mvpSortDir: 'asc',
+                spawnSelection: { open: false, mvpId: null, mvpName: '', choices: [], markAsDead: false },
+                // UI helpers
+                toasts: [],
+                confirmDialog: { open: false, title: '', message: '', onConfirm: null },
                 events: [
                     { 
                         id: 1, 
@@ -1057,30 +1284,438 @@
                     }
                 ],
                 getMvpRespawnInfo(mvpId) {
+                    // First try database lookup
                     const mvpData = this.mvpDatabase[mvpId];
-                    if (!mvpData || !mvpData.spawns || mvpData.spawns.length === 0) {
-                        return 'Unknown';
+                    if (mvpData && mvpData.spawns && mvpData.spawns.length > 0) {
+                        const spawn = mvpData.spawns[0];
+                        const minDelay = spawn.delay;
+                        const maxDelay = (spawn.delay || 0) + (spawn.variance || 0);
+                        return `${minDelay}-${maxDelay} min`;
                     }
-                    const spawn = mvpData.spawns[0];
-                    const minDelay = spawn.delay;
-                    const maxDelay = spawn.delay + spawn.variance;
-                    return `${minDelay}-${maxDelay} min`;
+                    // Fallback: check built allMvps (covers composite entries like bio_lab_3)
+                    const built = (this.allMvps || []).find(x => Number(x.id) === Number(mvpId));
+                    if (built && built.spawns && built.spawns.length > 0) {
+                        const spawn = built.spawns[0];
+                        const minDelay = spawn.delay || 0;
+                        const maxDelay = (spawn.delay || 0) + (spawn.variance || 0);
+                        if (minDelay > 0) return `${minDelay}-${maxDelay} min`;
+                    }
+                    return 'Unknown';
+                },
+                // Build `allMvps` from `mvpDatabase` including special multi-mvp entries (bio_lab_3)
+                buildAllMvps() {
+                    const list = [];
+                    Object.keys(this.mvpDatabase).forEach(key => {
+                        const entry = this.mvpDatabase[key];
+                        // Special composite entry (like bio_lab_3)
+                        if (entry && entry.mvp_ids) {
+                            // Attach full coordinates list so each possible boss can show
+                            // the set of possible spawn cells (they spawn randomly among them)
+                            const coords = entry.coordinates || [];
+                            entry.possible_mvps.forEach((name, idx) => {
+                                const id = entry.mvp_ids[name];
+                                const spawn = {
+                                    map: entry.map,
+                                    // individual x/y not deterministic; provide coordsList instead
+                                    coordsList: coords.map(c => ({ x: c[0], y: c[1] })),
+                                    delay: entry.delay,
+                                    variance: entry.variance
+                                };
+                                list.push({ id: id, name: name, spawns: [spawn], _composite: 'bio_lab_3' });
+                            });
+                        } else if (!isNaN(Number(key))) {
+                            // Regular numeric keyed MVPs
+                            const id = Number(key);
+                            list.push({ id: id, name: entry.name, spawns: entry.spawns.map(s => Object.assign({}, s)) });
+                        }
+                    });
+                    // Sort by name for easier browsing
+                    list.sort((a, b) => a.name.localeCompare(b.name));
+                    this.allMvps = list;
+                },
+
+                // Helper: return true if id belongs to the bio_lab_3 composite
+                isBioLab3Id(id) {
+                    try {
+                        const entry = this.mvpDatabase['bio_lab_3'];
+                        if (!entry || !entry.mvp_ids) return false;
+                        return Object.values(entry.mvp_ids).some(v => Number(v) === Number(id));
+                    } catch (e) { return false; }
+                },
+
+                // Helper: return true if any bio_lab_3 id is currently tracked
+                isAnyBioLab3Tracked() {
+                    try {
+                        const entry = this.mvpDatabase['bio_lab_3'];
+                        if (!entry || !entry.mvp_ids) return false;
+                        const ids = new Set(Object.values(entry.mvp_ids).map(v => Number(v)));
+                        return this.activeMvps.some(a => ids.has(Number(a.id)));
+                    } catch (e) { return false; }
+                },
+
+                // Return filtered and sorted All MVPs based on search and sort controls
+                filteredAll() {
+                    const q = (this.mvpSearch || '').trim().toLowerCase();
+                    let list = Array.isArray(this.allMvps) ? this.allMvps.slice() : [];
+                    if (q) {
+                        list = list.filter(m => {
+                            const name = (m.name || '').toLowerCase();
+                            const idStr = String(m.id || '');
+                            return name.includes(q) || idStr.includes(q);
+                        });
+                    }
+                    // Exclude entries that are already tracked.
+                    list = list.filter(m => {
+                        // If Bio Lab 3 and any bio lab tracked -> hide all bio lab entries
+                        if (this.isBioLab3Id(m.id) && this.isAnyBioLab3Tracked()) return false;
+                        // If single-spawn and that exact id+map is tracked, hide
+                        if (m.spawns && m.spawns.length === 1) {
+                            const map = m.spawns[0].map;
+                            if (this.isTrackedOnMap(m.id, map)) return false;
+                        }
+                        // If multi-spawn, hide only when all spawn maps are already tracked
+                        if (m.spawns && m.spawns.length > 1) {
+                            const allTracked = m.spawns.every(s => this.isTrackedOnMap(m.id, s.map));
+                            if (allTracked) return false;
+                        }
+                        return true;
+                    });
+                    const sortBy = this.mvpSortBy || 'name';
+                    const dir = this.mvpSortDir === 'desc' ? -1 : 1;
+                    list.sort((a, b) => {
+                        if (sortBy === 'id') {
+                            return dir * ((a.id || 0) - (b.id || 0));
+                        }
+                        // default: name
+                        const an = (a.name || '').localeCompare(b.name || '');
+                        return dir * an;
+                    });
+                    return list;
+                },
+
+                // Persistence helpers
+                saveActiveMvps() {
+                    try {
+                        localStorage.setItem('bigfish_active_mvps_v1', JSON.stringify(this.activeMvps));
+                    } catch (e) {
+                        console.warn('Failed saving activeMvps', e);
+                    }
+                },
+
+                loadActiveMvps() {
+                    try {
+                        const raw = localStorage.getItem('bigfish_active_mvps_v1');
+                        if (!raw) return;
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed)) {
+                            // Coerce timestamp fields to numbers and restore phases
+                            this.activeMvps = parsed.map(a => {
+                                if (a.killedAt) a.killedAt = Number(a.killedAt);
+                                if (a.minTarget) a.minTarget = Number(a.minTarget);
+                                if (a.maxTarget) a.maxTarget = Number(a.maxTarget);
+                                // derive phase
+                                if (a.status === 'dead') {
+                                    a._respawnPhase = (a.minTarget && Date.now() >= a.minTarget) ? (a.maxTarget && Date.now() < a.maxTarget ? 'window' : 'alive') : 'countdown';
+                                } else {
+                                    a._respawnPhase = 'alive';
+                                }
+                                return a;
+                            });
+                            // Immediately update displays once loaded
+                            this.updateAllRespawnDisplays();
+                        }
+                    } catch (e) {
+                        console.warn('Failed loading activeMvps', e);
+                    }
+                },
+
+                // Add an MVP to active tracker. If multiple spawns exist, open selection modal.
+                addMvpToTracker(mvpId, markAsDead = false) {
+                    const entry = this.allMvps.find(m => m.id === mvpId);
+                    if (!entry) return;
+                    if (!entry.spawns || entry.spawns.length === 0) return;
+                    // Enforce Bio Lab 3 rule: only one of the composite MVPs may be tracked at a time
+                    if (this.isBioLab3Id(entry.id) && this.isAnyBioLab3Tracked()) {
+                        // Bio Lab 3 rule: UI hides other biolab entries, so silently refuse here
+                        return;
+                    }
+                    if (entry.spawns.length === 1) {
+                        const spawn = entry.spawns[0];
+                        // Prevent duplicate id+map entries
+                        if (this.isTrackedOnMap(entry.id, spawn.map)) {
+                            this.showToast('Already tracking this MVP on that map', 'warning');
+                            return;
+                        }
+                        const item = { id: entry.id, name: entry.name, map: spawn.map, status: markAsDead ? 'dead' : 'alive', respawnTime: markAsDead ? 'Calculating...' : 'Now', coords: this.getCoordsText(spawn), spawn: spawn };
+                        this.activeMvps.push(item);
+                        this.saveActiveMvps();
+                        if (markAsDead) this.reportKill(item);
+                    } else {
+                        // open selection modal with choices but filter out maps already tracked
+                            const rawChoices = entry.spawns.map((s, i) => ({ index: i, map: s.map, coords: this.getCoordsText(s), spawn: s }));
+                            const choices = rawChoices.filter(c => !this.isTrackedOnMap(entry.id, c.map));
+                            if (!choices || choices.length === 0) {
+                                // nothing available to track for this MVP (all maps tracked)
+                                return;
+                            }
+                            this.spawnSelection.open = true;
+                            this.spawnSelection.mvpId = entry.id;
+                            this.spawnSelection.mvpName = entry.name;
+                            this.spawnSelection.choices = choices;
+                            this.spawnSelection.markAsDead = markAsDead;
+                    }
+                },
+
+                // Confirm choice from the spawn selection modal
+                confirmSpawnSelection(choice) {
+                        const entry = this.allMvps.find(m => m.id === this.spawnSelection.mvpId);
+                        if (!entry) return;
+                        const spawn = choice.spawn;
+                        // Enforce Bio Lab 3 rule here as well
+                        if (this.isBioLab3Id(entry.id) && this.isAnyBioLab3Tracked()) {
+                            // Bio Lab 3 rule: modal shouldn't open for other biolab entries; close quietly
+                            this.spawnSelection.open = false;
+                            this.spawnSelection.choices = [];
+                            this.spawnSelection.mvpId = null;
+                            this.spawnSelection.markAsDead = false;
+                            return;
+                        }
+                        // prevent duplicate id+map
+                        if (this.isTrackedOnMap(entry.id, spawn.map)) {
+                            // close modal and notify
+                            this.spawnSelection.open = false;
+                            this.spawnSelection.choices = [];
+                            this.spawnSelection.mvpId = null;
+                            this.spawnSelection.markAsDead = false;
+                            this.showToast('Already tracking this MVP on that map', 'warning');
+                            return;
+                        }
+                        const item = { id: entry.id, name: entry.name, map: spawn.map, status: this.spawnSelection.markAsDead ? 'dead' : 'alive', respawnTime: this.spawnSelection.markAsDead ? 'Calculating...' : 'Now', coords: this.getCoordsText(spawn), spawn: spawn };
+                        this.activeMvps.push(item);
+                        this.spawnSelection.open = false;
+                        this.spawnSelection.choices = [];
+                        this.spawnSelection.mvpId = null;
+                        // persist
+                        this.saveActiveMvps();
+                        if (this.spawnSelection.markAsDead) {
+                            // calculate respawn
+                            this.reportKill(item);
+                            this.spawnSelection.markAsDead = false;
+                        }
+                },
+
+                removeActiveMvp(index) {
+                    this.activeMvps.splice(index, 1);
+                    this.saveActiveMvps();
+                },
+
+                getCoordsText(spawn) {
+                    // If spawn contains a coordsList (composite entries), join them
+                    if (spawn && spawn.coordsList && Array.isArray(spawn.coordsList) && spawn.coordsList.length > 0) {
+                        return spawn.coordsList.map(c => `(${c.x}, ${c.y})`).join(' ');
+                    }
+                    if (spawn.x !== undefined && spawn.y !== undefined) return `(${spawn.x}, ${spawn.y})`;
+                    return spawn.coords || 'Random';
+                },
+                // Return true if MVP (any spawn) is already tracked (by id)
+                isTracked(m) {
+                    return this.activeMvps.some(a => a.id === m.id);
+                },
+                // Return true if MVP id is tracked on a specific map
+                isTrackedOnMap(id, map) {
+                    return this.activeMvps.some(a => a.id === id && a.map === map);
+                },
+                // Count how many tracked entries exist for this MVP id
+                getTrackedCount(m) {
+                    return this.activeMvps.filter(a => a.id === m.id).length;
+                },
+                getTrackedStatusText(m) {
+                    const c = this.getTrackedCount(m);
+                    if (c === 0) return 'UNTRACKED';
+                    return c === 1 ? 'TRACKED' : `TRACKED (${c})`;
+                },
+                getTrackedStatusClass(m) {
+                    if (this.getTrackedCount(m) > 0) {
+                        if (this.currentTheme === 'dark') return 'bg-green-900 text-green-300 border border-green-700';
+                        if (this.currentTheme === 'light') return 'bg-green-100 text-green-800 border border-slate-200';
+                        return 'text-[green] font-bold';
+                    } else {
+                        if (this.currentTheme === 'dark') return 'bg-guild-900 text-slate-300 border border-guild-600 opacity-80';
+                        if (this.currentTheme === 'light') return 'bg-slate-100 text-slate-700 border border-slate-200 opacity-80';
+                        return 'text-[#000000]';
+                    }
                 },
                 reportKill(mvp) {
+                    // Mark dead and compute absolute respawn window timestamps
                     mvp.status = 'dead';
                     mvp.respawnTime = 'Calculating...';
-                    // Simulate server update with actual respawn data
-                    setTimeout(() => {
+                    const now = Date.now();
+                    // Try to use the spawn data attached to the tracked item first
+                    let spawn = mvp.spawn;
+                    if (!spawn) {
                         const mvpData = this.mvpDatabase[mvp.id];
-                        if (mvpData && mvpData.spawns && mvpData.spawns.length > 0) {
-                            const spawn = mvpData.spawns.find(s => s.map === mvp.map) || mvpData.spawns[0];
-                            const minDelay = spawn.delay;
-                            const maxDelay = spawn.delay + spawn.variance;
-                            mvp.respawnTime = `${minDelay}-${maxDelay} min`;
-                        } else {
-                            mvp.respawnTime = '~2h 00m';
+                        spawn = (mvpData && mvpData.spawns && mvpData.spawns.length > 0) ? (mvpData.spawns.find(s => s.map === mvp.map) || mvpData.spawns[0]) : null;
+                    }
+                    if (spawn) {
+                        const minDelay = (spawn.delay || 0) * 60 * 1000; // minutes -> ms
+                        const maxDelay = ((spawn.delay || 0) + (spawn.variance || 0)) * 60 * 1000;
+                        mvp.killedAt = now;
+                        mvp.minTarget = now + minDelay;
+                        mvp.maxTarget = now + maxDelay;
+                        mvp._respawnPhase = 'countdown';
+                    } else {
+                        // Fallback: estimate 2 hours
+                        mvp.killedAt = now;
+                        mvp.minTarget = now + (120 * 60 * 1000);
+                        mvp.maxTarget = now + (120 * 60 * 1000) + (10 * 60 * 1000);
+                        mvp._respawnPhase = 'countdown';
+                    }
+                    // Persist initial values; ticker will update display
+                    this.saveActiveMvps();
+                },
+
+                // Start the global respawn ticker to update countdowns every second
+                startRespawnTicker() {
+                    if (this._respawnInterval) clearInterval(this._respawnInterval);
+                    this._respawnInterval = setInterval(() => this.updateAllRespawnDisplays(), 1000);
+                },
+
+                updateAllRespawnDisplays() {
+                    const now = Date.now();
+                    let changed = false;
+                    this.activeMvps.forEach(m => {
+                        const prevPhase = m._respawnPhase || (m.status === 'dead' ? 'countdown' : 'alive');
+                        this.updateRespawnDisplay(m, now);
+                        const newPhase = m._respawnPhase || (m.status === 'dead' ? 'countdown' : 'alive');
+                        // trigger alert when entering the spawn window (countdown -> window)
+                        if (prevPhase !== newPhase && newPhase === 'window') {
+                            this.showSpawnAlert(m);
                         }
-                    }, 500);
+                        if (newPhase !== prevPhase) changed = true;
+                    });
+                    if (changed) this.saveActiveMvps();
+                },
+
+                // Show toast, browser notification, and play a short sound when spawn window opens
+                showSpawnAlert(mvp) {
+                    try {
+                        const title = `${mvp.name} spawn window open`;
+                        const message = `Spawn window open on ${mvp.map}`;
+                        this.showToast(message, 'warning', title);
+                        // Browser Notification
+                        if ("Notification" in window) {
+                            if (Notification.permission === 'granted') {
+                                const n = new Notification(title, { body: message });
+                                n.onclick = () => { window.focus(); };
+                            } else if (Notification.permission !== 'denied') {
+                                Notification.requestPermission().then(p => {
+                                    if (p === 'granted') {
+                                        const n = new Notification(title, { body: message });
+                                        n.onclick = () => { window.focus(); };
+                                    }
+                                });
+                            }
+                        }
+                        // Play beep via WebAudio
+                        this.playAlertSound();
+                    } catch (e) {
+                        console.warn('Failed to show spawn alert', e);
+                    }
+                },
+
+                // Simple beep using WebAudio API
+                playAlertSound() {
+                    try {
+                        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                        if (!AudioCtx) return;
+                        const ctx = new AudioCtx();
+                        const o = ctx.createOscillator();
+                        const g = ctx.createGain();
+                        o.type = 'sine';
+                        o.frequency.setValueAtTime(880, ctx.currentTime);
+                        g.gain.setValueAtTime(0.0001, ctx.currentTime);
+                        g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.01);
+                        o.connect(g); g.connect(ctx.destination);
+                        o.start();
+                        setTimeout(() => {
+                            g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.05);
+                            setTimeout(() => { try { o.stop(); ctx.close(); } catch (e) {} }, 70);
+                        }, 250);
+                    } catch (e) { console.warn('playAlertSound failed', e); }
+                },
+
+                updateRespawnDisplay(mvp, now = Date.now()) {
+                    if (!mvp || mvp.status !== 'dead') return;
+                    if (!mvp.minTarget || !mvp.maxTarget) return;
+                    const minT = Number(mvp.minTarget);
+                    const maxT = Number(mvp.maxTarget);
+                    if (now < minT) {
+                        // Still waiting for min spawn
+                        const remain = minT - now;
+                        mvp.respawnTime = 'Respawning in ' + this.formatDuration(remain);
+                        mvp._respawnPhase = 'countdown';
+                    } else if (now >= minT && now < maxT) {
+                        // Within spawn window
+                        const windowTotal = maxT - minT;
+                        const remain = maxT - now;
+                        const minutesWindow = Math.ceil(windowTotal / 60000);
+                        mvp.respawnTime = `Respawning now for ${minutesWindow} min — ${this.formatDuration(remain)}`;
+                        mvp._respawnPhase = 'window';
+                    } else {
+                        // Past max, assume respawned
+                        mvp.status = 'alive';
+                        mvp.respawnTime = 'Now';
+                        delete mvp.killedAt;
+                        delete mvp.minTarget;
+                        delete mvp.maxTarget;
+                        mvp._respawnPhase = 'alive';
+                    }
+                },
+
+                formatDuration(ms) {
+                    if (ms <= 0) return '0s';
+                    const totalSeconds = Math.floor(ms / 1000);
+                    const hours = Math.floor(totalSeconds / 3600);
+                    const minutes = Math.floor((totalSeconds % 3600) / 60);
+                    const seconds = totalSeconds % 60;
+                    if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
+                    if (minutes > 0) return `${minutes}m ${seconds}s`;
+                    return `${seconds}s`;
+                },
+                untrackAll() {
+                    if (!this.activeMvps || this.activeMvps.length === 0) {
+                        this.showToast('No active MVPs to untrack', 'info');
+                        return;
+                    }
+                    this.openConfirm('Untrack All', 'Untrack ALL active MVPs? This cannot be undone.', () => {
+                        this.activeMvps = [];
+                        this.saveActiveMvps();
+                        this.showToast('All MVPs untracked', 'success');
+                    });
+                },
+
+                // Toast helpers
+                showToast(message, type = 'info', title = '') {
+                    const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+                    const t = { id, message, type, title, visible: true };
+                    this.toasts.push(t);
+                    // Auto-remove after 4s
+                    setTimeout(() => this.removeToast(id), 4000);
+                },
+                removeToast(id) {
+                    const idx = this.toasts.findIndex(x => x.id === id);
+                    if (idx === -1) return;
+                    // fade out
+                    this.toasts[idx].visible = false;
+                    setTimeout(() => { this.toasts = this.toasts.filter(x => x.id !== id); }, 300);
+                },
+
+                // Confirm dialog helper
+                openConfirm(title, message, onConfirm) {
+                    this.confirmDialog.title = title || 'Confirm';
+                    this.confirmDialog.message = message || '';
+                    this.confirmDialog.onConfirm = onConfirm || null;
+                    this.confirmDialog.open = true;
                 },
                 vote(pollId, optionId) {
                     alert('Vote cast! (This is a frontend demo)');
