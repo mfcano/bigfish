@@ -46,6 +46,8 @@ Currently hosted here: https://bigfish.free.nf/
 
 - **Light Mode**: Modern, clean interface for Mesi and Mao
 - **Dark Mode**: Eye-friendly for late-night grinding
+- **Cute Mode**: For the girlies
+- **Mesi Mode**: High contrast theme designed to burn into your brain
 - **Ragnarok 2005**: Nostalgic RMS forum-style theme that recreates the classic forum aesthetic
 
 ### ⏰ Time Tracking
@@ -56,20 +58,36 @@ Currently hosted here: https://bigfish.free.nf/
 
 ## Technology Stack
 
-- **Frontend Framework**: Alpine.js (lightweight reactivity)
+- **Frontend Framework**: React.js with Vite
 - **Styling**: Tailwind CSS (utility-first styling)
 - **Icons**: Font Awesome 6
 - **Storage**: LocalStorage for theme/tab persistence
 - **External Data**: RateMyServer MVP sprites and database links
+- **Backend**: FastAPI (Python)
 
 ## Getting Started
 
-Simply open `index.html` in a modern web browser. No build process or server required.
+### Backend
+
+The backend server can be started using the provided script:
 
 ```bash
-# Clone or download the project
-open index.html
+python start_dev.py
 ```
+
+This will start the FastAPI server on `http://localhost:8000`.
+
+### Frontend
+
+The frontend is now a React.js application. To run it:
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+The React app will be available at `http://localhost:4000` and will connect to the backend API at `http://localhost:8000`.
 
 ## Usage
 
@@ -86,6 +104,8 @@ Click the palette icon in the navigation bar to switch between:
 
 - Light Mode
 - Dark Mode
+- Cute Mode
+- Mesi Mode
 - Ragnarok 2005 (retro theme)
 
 ## Data & Customization

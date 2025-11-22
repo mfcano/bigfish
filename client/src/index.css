@@ -1,0 +1,179 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Theme: Ragnarok 2005 (RMS) - Forum Style */
+body.theme-rms {
+  font-family: 'Verdana', Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  background-color: #006699;
+  color: #000000;
+  background-image: none;
+}
+
+.theme-rms .container {
+  max-width: 75%;
+}
+
+/* Centered content wrapper with background */
+.theme-rms main {
+  background-color: #FFFFFF;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 15px;
+  border-left: 1px solid #000000;
+  border-right: 1px solid #000000;
+}
+
+/* Special override for the banner text container in RMS theme */
+.theme-rms .banner-text-container h1 {
+  color: #FFFFFF !important;
+  font-size: 3rem !important;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px #000000;
+}
+
+.theme-rms .banner-text-container p {
+  color: #FFFFFF !important;
+  font-size: 1.3rem !important;
+  text-shadow: 1px 1px 2px #000000;
+}
+
+/* Header */
+.theme-rms nav {
+  background: #006699;
+  background: linear-gradient(to bottom, #006699 0%, #003366 100%);
+  border-bottom: 0;
+  height: auto;
+  min-height: 40px;
+}
+
+.theme-rms .nav-link {
+  color: #FFFFFF;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 11px;
+  padding: 0 10px;
+}
+
+.theme-rms .nav-link:hover {
+  text-decoration: underline;
+  background: transparent;
+}
+
+.theme-rms .nav-link.active {
+  text-decoration: underline;
+  background: transparent;
+}
+
+/* Forum Categories (Cards) */
+.theme-rms .card {
+  background: #FFFFFF;
+  border: 1px solid #000000;
+  border-radius: 0;
+  box-shadow: none;
+  margin-bottom: 10px;
+}
+
+.theme-rms .card-header {
+  background: #006699;
+  background: linear-gradient(to bottom, #006699 0%, #003366 100%);
+  color: #FFFFFF;
+  font-weight: bold;
+  font-size: 11px;
+  padding: 5px 10px;
+  border-bottom: 1px solid #000000;
+}
+
+/* Content Areas */
+.theme-rms .content-row {
+  background-color: #DEE3E7;
+  border-top: 1px solid #FFFFFF;
+  border-bottom: 1px solid #D1D7DC;
+  padding: 5px;
+}
+
+.theme-rms .content-row:nth-child(even) {
+  background-color: #EFEFEF;
+}
+
+/* Typography */
+.theme-rms h1 {
+  font-size: 16px;
+  color: #000000;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.theme-rms h2 {
+  font-size: 14px;
+  color: #006699;
+  font-weight: bold;
+  border: none;
+  padding: 0;
+  margin-bottom: 10px;
+}
+
+.theme-rms h3 {
+  font-size: 12px;
+  color: #000000;
+  font-weight: bold;
+}
+
+.theme-rms p,
+.theme-rms span,
+.theme-rms div {
+  font-size: 11px;
+}
+
+/* Buttons */
+.theme-rms button {
+  font-family: 'Verdana', sans-serif;
+  font-size: 10px;
+  border-radius: 0 !important;
+}
+
+.theme-rms .btn-primary {
+  background: #EFEFEF;
+  border: 1px outset #FFFFFF;
+  color: #000000;
+  font-weight: bold;
+}
+
+.theme-rms .btn-primary:active {
+  border: 1px inset #FFFFFF;
+}
+
+/* Tables */
+.theme-rms table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #000000;
+}
+
+.theme-rms th {
+  background-color: #006699;
+  color: #FFFFFF;
+  font-weight: bold;
+  font-size: 10px;
+  text-align: center;
+  border: 1px solid #000000;
+  padding: 4px;
+}
+
+.theme-rms td {
+  background-color: #DEE3E7;
+  border: 1px solid #000000;
+  padding: 4px;
+  font-size: 11px;
+  color: #000000;
+}
+
+.theme-rms tr:nth-child(even) td {
+  background-color: #EFEFEF;
+}
+

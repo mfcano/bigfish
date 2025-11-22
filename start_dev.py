@@ -16,7 +16,7 @@ def main():
     """
     project_root = Path(__file__).parent.absolute()
     server_dir = project_root / "server"
-    client_file = project_root / "client" / "index.html"
+    # client_file = project_root / "client" / "index.html"
 
     print("🐟 Starting Big Fish Development Environment...")
 
@@ -65,8 +65,8 @@ def main():
         sys.exit(1)
 
     # 3. Open Frontend
-    print("🌐 Opening Frontend...")
-    webbrowser.open(f"file://{client_file}")
+    print("🌐 Please open the frontend in a separate terminal by running 'npm run dev' in the client directory! <3")
+    # webbrowser.open(f"file://{client_file}")
 
     print("\n✅ Environment Running!")
     print("   - Backend: http://localhost:8000")
