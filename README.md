@@ -2,7 +2,7 @@
 
 **Big Fish** is a comprehensive guild management dashboard. It provides a centralized hub for tracking gear, managing MVP spawns, organizing events, and coordinating guild activities.
 
-Currently hosted here: https://bigfish.free.nf/
+Currently hosted here: https://big-fish-9dbec.web.app/
 
 ## Purpose
 
