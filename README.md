@@ -87,7 +87,7 @@ npm install
 npm run dev
 ```
 
-The React app will be available at `http://localhost:4000` and will connect to the backend API at `http://localhost:8000`.
+The React app will be available at `http://localhost:5173` and will connect to the backend API at `http://localhost:8000`.
 
 ## Usage
 
