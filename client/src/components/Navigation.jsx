@@ -3,7 +3,7 @@ import { useTheme } from '../contexts/ThemeContext'
 import { auth } from '../firebase'
 import { signOut } from 'firebase/auth'
 
-const Navigation = ({ currentTab, setTab, serverTime, localTime, user, sidebarOpen, setSidebarOpen }) => {
+const Navigation = ({ currentTab, setTab, serverTime, localTime, user }) => {
   const {
     currentTheme,
     getNavButtonClass,
@@ -45,15 +45,6 @@ const Navigation = ({ currentTab, setTab, serverTime, localTime, user, sidebarOp
           
           {/* Left: Mobile Menu & Logo */}
           <div className="flex items-center gap-4">
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              type="button"
-              className={`md:hidden inline-flex items-center justify-center p-2 rounded-md focus:outline-none ${getNavButtonClass()}`}
-            >
-              <i className={`fa-solid ${sidebarOpen ? 'fa-times' : 'fa-bars'}`}></i>
-            </button>
-
             {/* Logo */}
             <div
               className="flex items-center cursor-pointer"
