@@ -11,9 +11,9 @@ def get_all_mvps(req: https_fn.Request, headers: dict) -> https_fn.Response:
         data = doc.to_dict()
         data['id'] = doc.id
         # Serialize datetime objects
-        if 'last_killed' in data and data['last_killed']:
+        if 'last_killed' in data and data['last_killed'] and hasattr(data['last_killed'], 'isoformat'):
             data['last_killed'] = data['last_killed'].isoformat()
-        if 'respawn_at' in data and data['respawn_at']:
+        if 'respawn_at' in data and data['respawn_at'] and hasattr(data['respawn_at'], 'isoformat'):
             data['respawn_at'] = data['respawn_at'].isoformat()
         mvps.append(data)
     return https_fn.Response(json.dumps(mvps), headers=headers)
@@ -38,9 +38,9 @@ def get_mvp(req: https_fn.Request, headers: dict, mvp_id: str) -> https_fn.Respo
     data = doc.to_dict()
     data['id'] = doc.id
     # Serialize datetime
-    if 'last_killed' in data and data['last_killed']:
+    if 'last_killed' in data and data['last_killed'] and hasattr(data['last_killed'], 'isoformat'):
         data['last_killed'] = data['last_killed'].isoformat()
-    if 'respawn_at' in data and data['respawn_at']:
+    if 'respawn_at' in data and data['respawn_at'] and hasattr(data['respawn_at'], 'isoformat'):
         data['respawn_at'] = data['respawn_at'].isoformat()
         
     return https_fn.Response(json.dumps(data), headers=headers)
@@ -62,9 +62,9 @@ def update_mvp(req: https_fn.Request, headers: dict, mvp_id: str) -> https_fn.Re
         updated_data = updated_doc.to_dict()
         updated_data['id'] = updated_doc.id
         # Serialize
-        if 'last_killed' in updated_data and updated_data['last_killed']:
+        if 'last_killed' in updated_data and updated_data['last_killed'] and hasattr(updated_data['last_killed'], 'isoformat'):
             updated_data['last_killed'] = updated_data['last_killed'].isoformat()
-        if 'respawn_at' in updated_data and updated_data['respawn_at']:
+        if 'respawn_at' in updated_data and updated_data['respawn_at'] and hasattr(updated_data['respawn_at'], 'isoformat'):
             updated_data['respawn_at'] = updated_data['respawn_at'].isoformat()
             
         return https_fn.Response(json.dumps(updated_data), headers=headers)

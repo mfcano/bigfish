@@ -7,10 +7,14 @@ import sys
 # Add the current directory to sys.path to allow importing 'app' module
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from app.routes import mvp
+from app.routes import mvp, user
 
 # Initialize Firebase Admin
 # Use GOOGLE_APPLICATION_CREDENTIALS env var or default credentials
+options = {
+    'storageBucket': 'big-fish-9dbec.firebasestorage.app'
+}
+
 if not os.getenv("FIREBASE_CONFIG"):
     # Local dev or manual credential path
     cred_path = os.getenv("SERVICE_ACCOUNT_FILE")
@@ -18,18 +22,18 @@ if not os.getenv("FIREBASE_CONFIG"):
         from firebase_admin import credentials
         cred = credentials.Certificate(cred_path)
         try:
-            initialize_app(cred)
+            initialize_app(cred, options)
         except ValueError:
             pass  # Already initialized
     else:
         try:
-            initialize_app()
+            initialize_app(options=options)
         except ValueError:
             pass
 else:
     # Cloud environment
     try:
-        initialize_app()
+        initialize_app(options=options)
     except ValueError:
         pass
 
@@ -73,6 +77,24 @@ def api(req: https_fn.Request) -> https_fn.Response:
             return mvp.get_mvp(req, headers, mvp_id)
         if req.method == 'PUT':
             return mvp.update_mvp(req, headers, mvp_id)
+
+    # /users/<id>/avatar
+    if '/users/' in path and path.endswith('/avatar'):
+        # Extract user_id from /users/<user_id>/avatar
+        parts = path.split('/')
+        # parts = ['', 'users', '<user_id>', 'avatar']
+        if len(parts) == 4:
+            user_id = parts[2]
+            if req.method == 'POST':
+                return user.upload_avatar(req, headers, user_id)
+
+    # /users/<id>
+    if path.startswith('/users/'):
+        user_id = path.split('/')[-1]
+        if req.method == 'PUT':
+            return user.update_user(req, headers, user_id)
+        if req.method == 'GET':
+            return user.get_user(req, headers, user_id)
 
     # Default 404
     return https_fn.Response(json.dumps({"error": "Not Found", "path": path}), status=404, headers=headers)

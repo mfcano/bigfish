@@ -9,5 +9,11 @@ service cloud.firestore {
       // WARNING: Lock this down before production!
       allow read, write: if true;
     }
+    
+    // Match users collection
+    match /users/{userId} {
+      // Allow users to read and write their own document
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
   }
 }

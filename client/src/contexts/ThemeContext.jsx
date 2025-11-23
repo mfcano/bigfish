@@ -1,4 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
+import { doc, getDoc } from 'firebase/firestore'
+import { auth, db } from '../firebase'
+import { onAuthStateChanged } from 'firebase/auth'
 
 const ThemeContext = createContext()
 
@@ -13,12 +16,33 @@ export const useTheme = () => {
 export const ThemeProvider = ({ children }) => {
   const [currentTheme, setCurrentTheme] = useState('dark')
 
+  // Load theme from local storage first
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme')
     if (savedTheme) {
       setCurrentTheme(savedTheme)
+      applyTheme(savedTheme)
+    } else {
+      applyTheme('dark')
     }
-    applyTheme(savedTheme || 'dark')
+  }, [])
+
+  // Listen for auth changes to load user preference from Firestore
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const userDoc = await getDoc(doc(db, 'users', user.uid))
+          if (userDoc.exists() && userDoc.data().theme) {
+            const remoteTheme = userDoc.data().theme
+            setTheme(remoteTheme) // This updates state and local storage
+          }
+        } catch (error) {
+          console.error('Error loading theme preference:', error)
+        }
+      }
+    })
+    return () => unsubscribe()
   }, [])
 
   const applyTheme = (theme) => {
@@ -66,6 +90,46 @@ export const ThemeProvider = ({ children }) => {
     }
   }
 
+  const getNavButtonClass = () => {
+    if (currentTheme === 'light')
+      return 'text-slate-400 hover:text-slate-900 hover:bg-slate-100'
+    if (currentTheme === 'dark')
+      return 'text-slate-400 hover:text-white hover:bg-guild-700'
+    if (currentTheme === 'cute')
+      return 'text-pink-300 hover:text-pink-100 hover:bg-pink-500/20'
+    if (currentTheme === 'mesi')
+      return 'text-[#FFFF00] hover:bg-[#FFFF00] hover:text-[#0000FF]'
+    return 'text-white hover:bg-white/20'
+  }
+
+  const getLogoClass = () => {
+    if (currentTheme === 'light' || currentTheme === 'dark')
+      return 'text-guild-accent text-2xl'
+    if (currentTheme === 'cute')
+      return 'text-pink-400 text-2xl drop-shadow-[0_0_5px_rgba(236,72,153,0.5)]'
+    if (currentTheme === 'mesi')
+      return 'text-[#FFFF00] text-3xl animate-spin'
+    return 'text-white text-sm'
+  }
+
+  const getTitleClass = () => {
+    if (currentTheme === 'light') return 'text-slate-900 text-xl'
+    if (currentTheme === 'dark') return 'text-white text-xl'
+    if (currentTheme === 'cute')
+      return 'text-transparent bg-clip-text bg-gradient-to-r from-pink-300 to-purple-300 text-xl font-extrabold'
+    if (currentTheme === 'mesi')
+      return 'text-[#FFFF00] text-2xl uppercase italic tracking-widest bg-[#FF00FF] px-2'
+    return 'text-white text-xs'
+  }
+
+  const getTimeClass = () => {
+    if (currentTheme === 'light') return 'text-slate-600'
+    if (currentTheme === 'dark') return 'text-slate-400'
+    if (currentTheme === 'cute') return 'text-pink-300/70'
+    if (currentTheme === 'mesi') return 'text-[#00FF00] bg-black px-1'
+    return 'text-white text-[10px]'
+  }
+
   const getCardClass = () => {
     if (currentTheme === 'light')
       return 'bg-white border-slate-200 hover:border-guild-accent transition-colors'
@@ -76,6 +140,14 @@ export const ThemeProvider = ({ children }) => {
     if (currentTheme === 'mesi')
       return 'bg-[#0000FF] border-4 border-[#FFFF00] shadow-none rounded-none'
     return 'theme-rms-card'
+  }
+
+  const getButtonClass = () => {
+     if (currentTheme === 'light') return 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500'
+     if (currentTheme === 'dark') return 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500'
+     if (currentTheme === 'cute') return 'bg-pink-400 text-white hover:bg-pink-500 focus:ring-pink-300'
+     if (currentTheme === 'mesi') return 'bg-[#FFFF00] text-[#0000FF] hover:bg-[#0000FF] hover:text-[#FFFF00] font-black border-4 border-[#0000FF] hover:border-[#FFFF00]'
+     return 'bg-blue-700 text-white hover:bg-blue-800'
   }
 
   const getTextClass = () => {
@@ -180,7 +252,12 @@ export const ThemeProvider = ({ children }) => {
         currentTheme,
         setTheme,
         getNavClass,
+        getNavButtonClass,
+        getLogoClass,
+        getTitleClass,
+        getTimeClass,
         getCardClass,
+        getButtonClass,
         getTextClass,
         getSubTextClass,
         getBadgeClass,
@@ -193,4 +270,3 @@ export const ThemeProvider = ({ children }) => {
     </ThemeContext.Provider>
   )
 }
-
