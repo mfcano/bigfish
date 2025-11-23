@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv
+venv/
+ENV/
+env/
+
+# Environment variables
+.env
+
+# System
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Node (just in case)
+node_modules/
+dist/
+
+# Firebase credentials
+server/*.json
