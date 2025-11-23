@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 
-const API_BASE = import.meta.env.PROD
-  ? "https://api-dyd6pxy55a-uc.a.run.app" // <-- Updated URL
-  : "http://localhost:8000";
+const API_BASE =
+  import.meta.env.VITE_API_BASE ||
+  (import.meta.env.PROD
+    ? "https://api-dyd6pxy55a-uc.a.run.app" // <-- Updated URL
+    : "http://localhost:8000");
 
 export const useMvps = () => {
   const [mvps, setMvps] = useState([]);
