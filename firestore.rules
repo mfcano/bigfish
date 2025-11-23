@@ -1,0 +1,13 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Match any document in the 'mvps' collection
+    match /mvps/{mvpId} {
+      // Allow read/write access to everyone (for now)
+      // WARNING: Lock this down before production!
+      allow read, write: if true;
+    }
+  }
+}

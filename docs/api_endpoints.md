@@ -1,10 +1,11 @@
 # API Endpoints
 
-This document outlines the planned API structure for the Big Fish application.
+This document outlines the API structure for the Big Fish application.
 
 ## Base URL
 
-`http://localhost:8000`
+- **Local Development**: `http://localhost:8000`
+- **Production**: `https://api-big-fish-9dbec.uc.a.run.app` (or similar Cloud Run URL)
 
 ## MVPs
 

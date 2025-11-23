@@ -2,90 +2,128 @@
 import os
 import subprocess
 import sys
-import webbrowser
 import time
+import signal
 from pathlib import Path
+from threading import Thread
+
+
+def install_python_deps(server_dir):
+    print("📦 Checking Python dependencies...")
+    try:
+        subprocess.check_call(
+            [sys.executable, "-m", "pip", "install", "-r", "requirements.txt"], cwd=server_dir)
+    except subprocess.CalledProcessError:
+        print("❌ Failed to install Python dependencies.")
+        sys.exit(1)
+
+
+def install_node_deps(client_dir):
+    print("📦 Checking Node dependencies...")
+    node_modules = client_dir / "node_modules"
+
+    # Always verify dependencies are installed
+    print("   Ensuring 'node_modules' are installed...")
+    try:
+        subprocess.check_call(["npm", "install"], cwd=client_dir)
+    except subprocess.CalledProcessError:
+        print("❌ Failed to install Node dependencies.")
+        sys.exit(1)
+
+
+def stream_output(process, prefix):
+    try:
+        while True:
+            line = process.stdout.readline()
+            if not line:
+                break
+            print(f"[{prefix}] {line.strip()}")
+    except ValueError:
+        pass
 
 
 def main():
     """
     Starts the Big Fish development environment:
-    1. Checks if required packages are installed (simple check)
-    2. Starts the FastAPI backend server
-    3. Opens the frontend HTML file in the default browser
+    1. Installs dependencies
+    2. Starts Backend (Functions Framework)
+    3. Starts Frontend (Vite)
     """
     project_root = Path(__file__).parent.absolute()
     server_dir = project_root / "server"
-    # client_file = project_root / "client" / "index.html"
+    client_dir = project_root / "client"
 
     print("🐟 Starting Big Fish Development Environment...")
 
-    # 1. Basic Dependency Check (optional but helpful)
-    # We'll just try to import uvicorn to see if it's there
-    try:
-        import uvicorn
-    except ImportError:
-        print("⚠️  'uvicorn' is not installed.")
-        print("   Please run: pip install -r server/requirements.txt")
-        sys.exit(1)
+    # 1. Install Dependencies
+    install_python_deps(server_dir)
+    install_node_deps(client_dir)
 
-    # 2. Start Backend Server
-    print("🚀 Starting Backend Server...")
+    processes = []
 
-    # Use the current python executable
-    python_exe = sys.executable
+    def cleanup(signum, frame):
+        print("\n🛑 Stopping services...")
+        for p in processes:
+            p.terminate()
+        print("👋 Goodbye!")
+        sys.exit(0)
 
-    # Run uvicorn as a subprocess
-    # We use Popen so it runs in parallel/background while we continue
-    try:
-        server_process = subprocess.Popen(
-            [python_exe, "-m", "uvicorn", "app.main:app",
-                "--reload", "--port", "8000"],
-            cwd=server_dir,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
-        )
+    signal.signal(signal.SIGINT, cleanup)
 
-        print("   Server process started (PID: {})".format(server_process.pid))
-        print("   Waiting for server to initialize...")
+    # 2. Start Backend (Functions Framework)
+    print("🚀 Starting Backend Server (Functions Framework)...")
+    # NOTE: We use 'main:api' because file is main.py and function is api
+    # We set port 8000 to match client config
+    backend_process = subprocess.Popen(
+        [sys.executable, "-m", "functions_framework", "--target=api",
+            "--source=main.py", "--port=8000", "--debug"],
+        cwd=server_dir,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,  # Merge stderr into stdout
+        text=True,
+        bufsize=1,
+        env={**os.environ, "PORT": "8000"}  # Explicitly pass PORT
+    )
+    processes.append(backend_process)
 
-        # Give it a moment to start up
-        time.sleep(3)
+    # Start a thread to stream backend output
+    backend_thread = Thread(target=stream_output,
+                            args=(backend_process, "Backend"))
+    backend_thread.daemon = True
+    backend_thread.start()
 
-        # Check if it crashed immediately
-        if server_process.poll() is not None:
-            stdout, stderr = server_process.communicate()
-            print("❌ Server failed to start:")
-            print(stderr)
-            sys.exit(1)
+    # 3. Start Frontend
+    print("🌐 Starting Frontend Server...")
+    frontend_process = subprocess.Popen(
+        ["npm", "run", "dev"],
+        cwd=client_dir,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1
+    )
+    processes.append(frontend_process)
 
-    except Exception as e:
-        print(f"❌ Failed to start server: {e}")
-        sys.exit(1)
-
-    # 3. Open Frontend
-    print("🌐 Please open the frontend in a separate terminal by running 'npm run dev' in the client directory! <3")
-    # webbrowser.open(f"file://{client_file}")
+    # Start a thread to stream frontend output
+    frontend_thread = Thread(target=stream_output,
+                             args=(frontend_process, "Frontend"))
+    frontend_thread.daemon = True
+    frontend_thread.start()
 
     print("\n✅ Environment Running!")
     print("   - Backend: http://localhost:8000")
-    print("   - API Docs: http://localhost:8000/docs")
-    print("   - Frontend: Opened in browser")
-    print("\n🔴 Press Ctrl+C to stop the server and exit.")
+    print("   - Frontend: http://localhost:5173 (or similar)")
+    print("\n🔴 Press Ctrl+C to stop all servers.")
 
-    try:
-        # Stream server output to console so user can see logs
-        while True:
-            line = server_process.stdout.readline()
-            if not line and server_process.poll() is not None:
-                break
-            if line:
-                print(f"[Server] {line.strip()}")
-    except KeyboardInterrupt:
-        print("\n🛑 Stopping server...")
-        server_process.terminate()
-        print("👋 Goodbye!")
+    # Wait for processes
+    while True:
+        time.sleep(1)
+        if backend_process.poll() is not None:
+            print("❌ Backend server stopped unexpectedly.")
+            cleanup(None, None)
+        if frontend_process.poll() is not None:
+            print("❌ Frontend server stopped unexpectedly.")
+            cleanup(None, None)
 
 
 if __name__ == "__main__":

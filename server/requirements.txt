@@ -1,8 +1,6 @@
-fastapi==0.109.0
-uvicorn==0.27.0
-motor==3.3.2
-pymongo==4.6.0
-beanie==1.25.0
+firebase-admin==6.4.0
+google-cloud-firestore==2.14.0
+firebase-functions==0.1.0
+flask==3.0.2
+functions-framework==3.5.0
 python-dotenv==1.0.1
-pydantic==2.6.1
-pydantic-settings==2.1.0

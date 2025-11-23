@@ -5,69 +5,82 @@ Welcome to the Big Fish project! Here is how to get started.
 ## Prerequisites
 
 - [Python 3.10+](https://www.python.org/) (for the backend)
+- [Node.js 20+](https://nodejs.org/) (Required for Vite 6/7)
+  - Recommended: Use `nvm` to manage versions.
+  - Run `nvm use` in the project root to auto-select version 20.
 - A code editor (VS Code recommended)
 - A web browser
 
 ## Quick Start (Recommended)
 
-We have a script that starts everything for you!
+We have a script that sets up dependencies and starts everything for you!
 
-1. Ensure you have set up the backend first (see "Backend Setup" below).
-2. Run the start script from the root folder:
-   ```bash
-   python3 start_dev.py
-   ```
-   This will:
-   - Start the API server
-   - Open the website in your browser
-   - Show you server logs in the terminal
+1.  **Configure Environment**:
+
+    - Copy `server/env.example` to `server/.env`.
+    - You need a Firebase Service Account JSON key.
+      - Place the JSON file in the `server/` directory.
+      - Update `server/.env` to point to it: `SERVICE_ACCOUNT_FILE=server/your-key-file.json`.
+
+2.  **Run the Start Script**:
+    From the root folder, run:
+
+    ```bash
+    python3 start_dev.py
+    ```
+
+    This will:
+
+    - Install Python dependencies (`server/requirements.txt`).
+    - **Automatically install Node dependencies** (`client/package.json`).
+    - Start the Backend (Cloud Functions emulator via `functions-framework`).
+    - Start the Frontend React dev server.
+    - Stream logs from both to your terminal.
+
+    > **Note:** If you encounter permission errors with `npm`, please fix your npm permissions or run the script with elevated privileges (though fixing permissions is recommended).
 
 ---
 
-## Manual Setup
+## Deployment
 
-If you prefer to run things manually:
+We deploy the frontend to **Firebase Hosting** and the backend to **Firebase Cloud Functions**.
 
-### Frontend (The Website)
+### Prerequisites for Deployment
 
-The frontend is currently a static HTML site.
+1.  **Firebase Blaze Plan**: You must upgrade your Firebase project to the **Blaze (Pay-as-you-go)** plan. This is required for Cloud Functions (Python runtime).
+2.  **Firebase Tools**: Ensure you have the CLI installed and logged in:
+    ```bash
+    npm install -g firebase-tools
+    firebase login
+    ```
 
-1. Navigate to the `client` folder:
-   ```bash
-   cd client
-   ```
-2. Open `index.html` in your browser.
-   - On Mac: `open index.html`
-   - On Windows: Double-click the file
+### How to Deploy
 
-### Backend (The Server)
+Simply run the deployment script:
 
-We use **FastAPI** with Python.
+```bash
+./deploy.sh
+```
 
-1. Navigate to the `server` folder:
-   ```bash
-   cd server
-   ```
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Create your environment file:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your database credentials
-   ```
-4. Start the server:
-   ```bash
-   uvicorn app.main:app --reload
-   ```
-   The API will be available at `http://localhost:8000`.
-   Interactive docs are at `http://localhost:8000/docs`.
+This will:
+
+1.  Build the frontend client.
+2.  Deploy the client to Firebase Hosting.
+3.  Deploy the Python backend to Firebase Cloud Functions (Function name: `api`).
+
+**Note:** The deployed backend URL will look like `https://api-big-fish-9dbec.uc.a.run.app` (or similar). You MUST update `client/src/hooks/useMvps.js` with this URL for the production app to work.
+
+---
 
 ## Project Structure
 
-- **client/**: Contains the HTML/CSS/JS for the user interface.
-- **server/**: Contains the Python FastAPI backend.
-  - **app/**: Main application code.
+- **client/**: React frontend application.
+- **server/**: Python Cloud Functions backend.
+  - **main.py**: Entry point for Cloud Functions (contains all API logic).
+  - **app/**: Application logic.
+    - **models/**: Data models.
+    - **routes/**: Route handlers.
   - **requirements.txt**: Python dependencies.
 - **docs/**: Documentation for developers.
+- **start_dev.py**: Development entry point script.
+- **deploy.sh**: Deployment script.

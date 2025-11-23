@@ -1,53 +1,73 @@
-from fastapi import APIRouter, HTTPException
-from app.models.mvp import Mvp
-from typing import List
-from beanie import PydanticObjectId
+from firebase_admin import firestore
+from firebase_functions import https_fn
+import json
+from datetime import datetime
 
-router = APIRouter(
-    prefix="/mvps",
-    tags=["MVPs"]
-)
+def get_all_mvps(req: https_fn.Request, headers: dict) -> https_fn.Response:
+    db = firestore.client()
+    docs = db.collection('mvps').stream()
+    mvps = []
+    for doc in docs:
+        data = doc.to_dict()
+        data['id'] = doc.id
+        # Serialize datetime objects
+        if 'last_killed' in data and data['last_killed']:
+            data['last_killed'] = data['last_killed'].isoformat()
+        if 'respawn_at' in data and data['respawn_at']:
+            data['respawn_at'] = data['respawn_at'].isoformat()
+        mvps.append(data)
+    return https_fn.Response(json.dumps(mvps), headers=headers)
 
-@router.get("/", response_model=List[Mvp])
-async def get_all_mvps():
-    """
-    Get all tracked MVPs
-    """
-    return await Mvp.find_all().to_list()
+def create_mvp(req: https_fn.Request, headers: dict) -> https_fn.Response:
+    db = firestore.client()
+    try:
+        data = req.get_json()
+        update_time, doc_ref = db.collection('mvps').add(data)
+        data['id'] = doc_ref.id
+        return https_fn.Response(json.dumps(data), status=201, headers=headers)
+    except Exception as e:
+        return https_fn.Response(json.dumps({"error": str(e)}), status=400, headers=headers)
 
-@router.post("/", response_model=Mvp)
-async def create_mvp(mvp: Mvp):
-    """
-    Add a new MVP to track
-    """
-    await mvp.create()
-    return mvp
-
-@router.get("/{id}", response_model=Mvp)
-async def get_mvp(id: PydanticObjectId):
-    """
-    Get a specific MVP by ID
-    """
-    mvp = await Mvp.get(id)
-    if not mvp:
-        raise HTTPException(status_code=404, detail="MVP not found")
-    return mvp
-
-@router.put("/{id}", response_model=Mvp)
-async def update_mvp(id: PydanticObjectId, mvp_data: Mvp):
-    """
-    Update an MVP (e.g. update status or respawn time)
-    """
-    mvp = await Mvp.get(id)
-    if not mvp:
-        raise HTTPException(status_code=404, detail="MVP not found")
+def get_mvp(req: https_fn.Request, headers: dict, mvp_id: str) -> https_fn.Response:
+    db = firestore.client()
+    doc_ref = db.collection('mvps').document(mvp_id)
+    doc = doc_ref.get()
+    if not doc.exists:
+        return https_fn.Response(json.dumps({"error": "MVP not found"}), status=404, headers=headers)
     
-    # Update fields
-    mvp.status = mvp_data.status
-    mvp.respawn_at = mvp_data.respawn_at
-    mvp.last_killed = mvp_data.last_killed
-    mvp.notes = mvp_data.notes
-    
-    await mvp.save()
-    return mvp
+    data = doc.to_dict()
+    data['id'] = doc.id
+    # Serialize datetime
+    if 'last_killed' in data and data['last_killed']:
+        data['last_killed'] = data['last_killed'].isoformat()
+    if 'respawn_at' in data and data['respawn_at']:
+        data['respawn_at'] = data['respawn_at'].isoformat()
+        
+    return https_fn.Response(json.dumps(data), headers=headers)
+
+def update_mvp(req: https_fn.Request, headers: dict, mvp_id: str) -> https_fn.Response:
+    db = firestore.client()
+    try:
+        data = req.get_json()
+        doc_ref = db.collection('mvps').document(mvp_id)
+        
+        # Check existence
+        if not doc_ref.get().exists:
+            return https_fn.Response(json.dumps({"error": "MVP not found"}), status=404, headers=headers)
+        
+        doc_ref.set(data, merge=True)
+        
+        # Return updated
+        updated_doc = doc_ref.get()
+        updated_data = updated_doc.to_dict()
+        updated_data['id'] = updated_doc.id
+        # Serialize
+        if 'last_killed' in updated_data and updated_data['last_killed']:
+            updated_data['last_killed'] = updated_data['last_killed'].isoformat()
+        if 'respawn_at' in updated_data and updated_data['respawn_at']:
+            updated_data['respawn_at'] = updated_data['respawn_at'].isoformat()
+            
+        return https_fn.Response(json.dumps(updated_data), headers=headers)
+    except Exception as e:
+        return https_fn.Response(json.dumps({"error": str(e)}), status=400, headers=headers)
 
