@@ -7,11 +7,24 @@ import GearStorage from './components/GearStorage'
 import MvpTracker from './components/MvpTracker'
 import Events from './components/Events'
 import Footer from './components/Footer'
+import Login from './components/Login'
+import { auth } from './firebase'
+import { onAuthStateChanged } from 'firebase/auth'
 
 const AppContent = () => {
   const [currentTab, setCurrentTab] = useState('home')
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
   const { getBodyClass } = useTheme()
   const { serverTime, localTime } = useTime()
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser)
+      setLoading(false)
+    })
+    return () => unsubscribe()
+  }, [])
 
   useEffect(() => {
     const savedTab = localStorage.getItem('currentTab')
@@ -27,6 +40,27 @@ const AppContent = () => {
 
   const bodyClasses = `min-h-screen flex flex-col transition-colors duration-300 ${getBodyClass()}`
 
+  if (loading) {
+    return (
+      <div className={bodyClasses}>
+        <div className="flex-grow flex items-center justify-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className={bodyClasses}>
+        <main className="flex-grow flex items-center justify-center container mx-auto px-4 py-8">
+          <Login />
+        </main>
+        <Footer />
+      </div>
+    )
+  }
+
   return (
     <div className={bodyClasses}>
       <Navigation
@@ -34,6 +68,7 @@ const AppContent = () => {
         setTab={handleSetTab}
         serverTime={serverTime}
         localTime={localTime}
+        user={user}
       />
       <main className="flex-grow container mx-auto px-4 py-8">
         {currentTab === 'home' && <Home setTab={handleSetTab} />}

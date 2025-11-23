@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { useTheme } from '../contexts/ThemeContext'
+import { auth } from '../firebase'
+import { signOut } from 'firebase/auth'
 
-const Navigation = ({ currentTab, setTab, serverTime, localTime }) => {
+const Navigation = ({ currentTab, setTab, serverTime, localTime, user }) => {
   const {
     currentTheme,
     setTheme,
@@ -11,6 +13,14 @@ const Navigation = ({ currentTab, setTab, serverTime, localTime }) => {
   } = useTheme()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [themeMenuOpen, setThemeMenuOpen] = useState(false)
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth)
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
+  }
 
   const tabs = [
     { id: 'home', label: 'Home' },
@@ -212,6 +222,18 @@ const Navigation = ({ currentTab, setTab, serverTime, localTime }) => {
                   </div>
                 )}
               </div>
+
+              <div className="ml-4">
+                <button
+                  onClick={handleSignOut}
+                  className={`p-2 rounded-md focus:outline-none flex items-center gap-2 transition-colors ${getNavButtonClass()}`}
+                >
+                  <i className="fa-solid fa-sign-out-alt"></i>
+                  <span className="font-bold uppercase hidden lg:inline">
+                    Sign Out
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
           <div className="-mr-2 flex md:hidden">
@@ -322,6 +344,29 @@ const Navigation = ({ currentTab, setTab, serverTime, localTime }) => {
               className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium ${getTextClass()}`}
             >
               Ragnarok 2005
+            </button>
+
+            <div
+              className={`border-t my-2 ${
+                currentTheme === 'light'
+                  ? 'border-slate-200'
+                  : currentTheme === 'dark'
+                  ? 'border-guild-700'
+                  : currentTheme === 'cute'
+                  ? 'border-pink-500/20'
+                  : currentTheme === 'mesi'
+                  ? 'border-[#FFFF00]'
+                  : 'border-white/20'
+              }`}
+            ></div>
+            <button
+              onClick={() => {
+                handleSignOut()
+                setMobileMenuOpen(false)
+              }}
+              className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium ${getTextClass()}`}
+            >
+              Sign Out
             </button>
           </div>
         </div>

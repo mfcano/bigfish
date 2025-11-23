@@ -31,6 +31,16 @@ def install_node_deps(client_dir):
         sys.exit(1)
 
 
+def build_client(client_dir):
+    print("🔨 Building client...")
+    try:
+        subprocess.check_call(["npm", "run", "build"], cwd=client_dir)
+        print("✅ Client build successful!")
+    except subprocess.CalledProcessError:
+        print("❌ Failed to build client.")
+        sys.exit(1)
+
+
 def stream_output(process, prefix):
     try:
         while True:
@@ -46,8 +56,9 @@ def main():
     """
     Starts the Big Fish development environment:
     1. Installs dependencies
-    2. Starts Backend (Functions Framework)
-    3. Starts Frontend (Vite)
+    2. Builds client
+    3. Starts Backend (Functions Framework)
+    4. Starts Frontend (Vite)
     """
     project_root = Path(__file__).parent.absolute()
     server_dir = project_root / "server"
@@ -58,6 +69,9 @@ def main():
     # 1. Install Dependencies
     install_python_deps(server_dir)
     install_node_deps(client_dir)
+
+    # 2. Build Client
+    build_client(client_dir)
 
     processes = []
 
@@ -70,7 +84,7 @@ def main():
 
     signal.signal(signal.SIGINT, cleanup)
 
-    # 2. Start Backend (Functions Framework)
+    # 3. Start Backend (Functions Framework)
     print("🚀 Starting Backend Server (Functions Framework)...")
     # NOTE: We use 'main:api' because file is main.py and function is api
     # We set port 8000 to match client config
@@ -92,7 +106,7 @@ def main():
     backend_thread.daemon = True
     backend_thread.start()
 
-    # 3. Start Frontend
+    # 4. Start Frontend
     print("🌐 Starting Frontend Server...")
     frontend_process = subprocess.Popen(
         ["npm", "run", "dev"],
