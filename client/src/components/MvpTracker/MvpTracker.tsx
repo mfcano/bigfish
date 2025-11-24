@@ -58,7 +58,8 @@ const MvpTracker = () => {
     return "text-xl font-bold transition-colors hover:underline text-white group-hover:text-red-400";
   };
 
-  const getLocationTabClass = (isActive) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const getLocationTabClass = (isActive: boolean) => {
     if (currentTheme === "light")
       return isActive
         ? "bg-red-500 text-white border-red-500"
@@ -89,9 +90,56 @@ const MvpTracker = () => {
 
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <p className={getTextClass()}>Loading MVPs...</p>
-      </div>
+      <>
+        <div
+          className={`flex justify-between items-center mb-6 ${
+            currentTheme === "rms" ? "mb-2" : ""
+          }`}
+        >
+          <h2 className={`text-3xl font-bold border-l-4 pl-4 ${getTitleClass()}`}>
+            MVP Tracker
+          </h2>
+          <div className="flex space-x-2">
+            <button
+              className={`text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md transition-colors ${getAlertButtonClass()}`}
+            >
+              <i className="fa-solid fa-bell mr-2"></i> Set Alerts
+            </button>
+          </div>
+        </div>
+
+        {currentTheme === "rms" ? (
+          <div className="col-span-3 mb-2">
+            <div className="card">
+              <div className="card-header">MVP Status List</div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr>
+                      <th>MVP Name</th>
+                      <th>Map</th>
+                      <th>Status</th>
+                      <th>Respawn</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...Array(10)].map((_, i) => (
+                      <MvpTableSkeleton key={i} currentTheme={currentTheme} />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <MvpCardSkeleton key={i} currentTheme={currentTheme} />
+            ))}
+          </div>
+        )}
+      </>
     );
   }
 
@@ -131,7 +179,7 @@ const MvpTracker = () => {
                 </thead>
                 <tbody>
                   {mvps.map((mvp) =>
-                    mvp.locations.map((location, idx) => (
+                    mvp.locations.map((location: any, idx: number) => (
                       <tr key={location._id}>
                         {idx === 0 && (
                           <td
@@ -215,12 +263,12 @@ const MvpCard = ({
   getRespawnTimeClass,
   getReportButtonClass,
   reportKill,
-}) => {
+}: any) => {
   const [selectedLocation, setSelectedLocation] = useState(0);
   const location = mvp.locations[selectedLocation];
   const hasMultipleLocations = mvp.locations.length > 1;
 
-  const getStatusIndicatorGradient = (status) => {
+  const getStatusIndicatorGradient = (status: string) => {
     if (status === "alive") {
       if (currentTheme === "cute")
         return "bg-gradient-to-br from-green-400 via-emerald-400 to-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]";
@@ -240,7 +288,7 @@ const MvpCard = ({
     return "bg-gradient-to-br from-red-400 via-red-500 to-rose-600 shadow-[0_0_8px_rgba(239,68,68,0.5)]";
   };
 
-  const getLocationButtonClass = (idx) => {
+  const getLocationButtonClass = (idx: number) => {
     const isActive = idx === selectedLocation;
     if (currentTheme === "light")
       return isActive
@@ -280,7 +328,7 @@ const MvpCard = ({
           top: "45%",
           transform: "translate(-50%, -50%) scale(2.5)",
         }}
-        onError={(e) => (e.target.style.display = "none")}
+        onError={(e) => ((e.target as HTMLImageElement).style.display = "none")}
       />
 
       {currentTheme !== "cute" && (
@@ -333,7 +381,7 @@ const MvpCard = ({
               Select Location
             </p>
             <div className="flex flex-wrap gap-2">
-              {mvp.locations.map((loc, idx) => (
+              {mvp.locations.map((loc: any, idx: number) => (
                 <button
                   key={loc._id}
                   onClick={() => setSelectedLocation(idx)}
@@ -386,6 +434,82 @@ const MvpCard = ({
         </button>
       </div>
     </div>
+  );
+};
+
+const MvpCardSkeleton = ({ currentTheme }: any) => {
+  const getSkeletonBaseClass = () => {
+    if (currentTheme === "light") return "bg-white border-slate-200";
+    if (currentTheme === "dark") return "bg-black border-slate-800";
+    if (currentTheme === "cute") return "bg-[#2a2438] border-pink-500/20";
+    if (currentTheme === "mesi")
+      return "bg-[#0000FF] border-4 border-[#FFFF00]";
+    return "";
+  };
+
+  const getPulseClass = () => {
+    if (currentTheme === "cute") return "bg-pink-500/20";
+    if (currentTheme === "mesi") return "bg-yellow-400";
+    if (currentTheme === "light") return "bg-slate-200";
+    return "bg-slate-800";
+  };
+
+  const pulse = getPulseClass();
+
+  return (
+    <div
+      className={`rounded-xl overflow-hidden shadow-lg border p-4 min-h-[420px] flex flex-col relative animate-pulse ${getSkeletonBaseClass()}`}
+    >
+      {/* Image Placeholder */}
+      <div
+        className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full ${pulse} opacity-50`}
+      ></div>
+
+      {/* Status Badge */}
+      <div className={`absolute top-2 right-2 w-16 h-6 rounded ${pulse}`}></div>
+
+      <div className="flex-grow"></div>
+
+      <div className="z-30 relative space-y-4 mt-32">
+        {/* Title */}
+        <div className={`h-8 w-2/3 rounded ${pulse}`}></div>
+        {/* Subtitle */}
+        <div className={`h-4 w-1/3 rounded ${pulse}`}></div>
+
+        {/* Info Blocks */}
+        <div className="space-y-2 mt-4">
+          <div className={`h-3 w-1/4 rounded ${pulse}`}></div>
+          <div className={`h-5 w-1/2 rounded ${pulse}`}></div>
+          <div className={`h-3 w-1/4 rounded ${pulse}`}></div>
+        </div>
+
+        {/* Button */}
+        <div className={`w-full h-10 rounded mt-4 ${pulse}`}></div>
+      </div>
+    </div>
+  );
+};
+
+const MvpTableSkeleton = ({ currentTheme }: any) => {
+  const pulse = currentTheme === "light" ? "bg-slate-200" : "bg-slate-700";
+  return (
+    <tr className="animate-pulse">
+      <td className="p-2">
+        <div className={`h-4 w-24 rounded ${pulse}`}></div>
+      </td>
+      <td className="p-2">
+        <div className={`h-4 w-20 rounded ${pulse}`}></div>
+      </td>
+      <td className="p-2">
+        <div className={`h-4 w-16 rounded ${pulse} mx-auto`}></div>
+      </td>
+      <td className="p-2">
+        <div className={`h-4 w-16 rounded ${pulse} mx-auto`}></div>
+      </td>
+      <td className="p-2">
+        <div className={`h-6 w-16 rounded ${pulse} mx-auto`}></div>
+      </td>
+    </tr>
   );
 };
 

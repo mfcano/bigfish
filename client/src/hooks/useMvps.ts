@@ -7,7 +7,7 @@ const API_BASE =
     : "http://localhost:8000");
 
 export const useMvps = () => {
-  const [mvps, setMvps] = useState([]);
+  const [mvps, setMvps] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
