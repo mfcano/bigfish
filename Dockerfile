@@ -24,6 +24,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy Backend Code
 COPY server/ /app/server/
 
+# Copy Service Account from root (if it matches pattern)
+# Use wildcard to avoid error if file doesn't exist (though it should for this setup)
+COPY big-fish-9dbec-firebase-adminsdk-fbsvc-52ad258a20.json* /app/
+
 # Copy Nginx Configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 
@@ -33,7 +37,7 @@ COPY --from=client-build /app/client/dist /usr/share/nginx/html
 # Create Start Script
 # We dynamically find the firebase credentials file if it exists
 RUN echo '#!/bin/bash' > /app/start.sh && \
-    echo 'export SERVICE_ACCOUNT_FILE=$(find /app/server -name "*firebase-adminsdk*.json" | head -n 1)' >> /app/start.sh && \
+    echo 'export SERVICE_ACCOUNT_FILE=$(find /app -maxdepth 1 -name "*firebase-adminsdk*.json" | head -n 1)' >> /app/start.sh && \
     echo 'if [ -z "$SERVICE_ACCOUNT_FILE" ]; then' >> /app/start.sh && \
     echo '  echo "Warning: No firebase credentials found. Backend may fail to initialize if not on GCP."' >> /app/start.sh && \
     echo 'else' >> /app/start.sh && \

@@ -18,6 +18,20 @@ options = {
 if not os.getenv("FIREBASE_CONFIG"):
     # Local dev or manual credential path
     cred_path = os.getenv("SERVICE_ACCOUNT_FILE")
+
+    # Fallback: Check project root for service account file if not provided/found
+    if not cred_path or not os.path.exists(cred_path):
+        try:
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            project_root = os.path.dirname(current_dir)
+            for f in os.listdir(project_root):
+                if f.endswith('.json') and 'firebase-adminsdk' in f:
+                    cred_path = os.path.join(project_root, f)
+                    print(f"Found service account in root: {cred_path}")
+                    break
+        except Exception:
+            pass
+
     if cred_path and os.path.exists(cred_path):
         from firebase_admin import credentials
         cred = credentials.Certificate(cred_path)

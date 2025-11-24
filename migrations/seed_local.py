@@ -97,13 +97,21 @@ if __name__ == "__main__":
     if len(sys.argv) >= 2:
         sa_path = sys.argv[1]
 
-    # 2. Try finding json in current dir
+    # 2. Try finding json in current dir or parent dir
     if not sa_path:
-        files = [f for f in os.listdir('.') if f.endswith(
-            '.json') and 'firebase-adminsdk' in f]
-        if files:
-            sa_path = files[0]
-            print(f"🔍 Found service account file: {sa_path}")
+        possible_dirs = ['.', '..']
+        for d in possible_dirs:
+            try:
+                if not os.path.exists(d):
+                    continue
+                files = [f for f in os.listdir(d) if f.endswith(
+                    '.json') and 'firebase-adminsdk' in f]
+                if files:
+                    sa_path = os.path.join(d, files[0])
+                    print(f"🔍 Found service account file: {sa_path}")
+                    break
+            except OSError:
+                pass
 
     if not sa_path or not os.path.exists(sa_path):
         print("❌ Error: Could not find service account JSON file.")
