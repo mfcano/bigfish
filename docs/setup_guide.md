@@ -8,6 +8,10 @@ Welcome to the Big Fish project! Here is how to get started.
 - [Node.js 20+](https://nodejs.org/) (Required for Vite 6/7)
   - Recommended: Use `nvm` to manage versions.
   - Run `nvm use` in the project root to auto-select version 20.
+- [Firebase CLI](https://firebase.google.com/docs/cli)
+  - Run `npm install -g firebase-tools`
+  - Run `firebase login` to authenticate.
+- Java 11+ (Required for Firebase Emulators)
 - A code editor (VS Code recommended)
 - A web browser
 
@@ -18,7 +22,7 @@ We have a script that sets up dependencies and starts everything for you!
 1.  **Configure Environment**:
 
     - Copy `server/env.example` to `server/.env`.
-    - You need a Firebase Service Account JSON key.
+    - You need a Firebase Service Account JSON key (optional for local emulator, but required for production).
       - Place the JSON file in the `server/` directory.
       - Update `server/.env` to point to it: `SERVICE_ACCOUNT_FILE=server/your-key-file.json`.
 
@@ -31,13 +35,17 @@ We have a script that sets up dependencies and starts everything for you!
 
     This will:
 
+    - Check that required ports (8000, 5173, 8081, 4000) are free.
     - Install Python dependencies (`server/requirements.txt`).
     - **Automatically install Node dependencies** (`client/package.json`).
     - Start the Backend (Cloud Functions emulator via `functions-framework`).
-    - Start the Frontend React dev server.
-    - Stream logs from both to your terminal.
+    - Start the Frontend React dev server (Strictly on port 5173).
+    - **Start the Firebase Emulator Suite** (Firestore) on port 8081.
+    - Stream logs from all services to your terminal.
 
-    > **Note:** If you encounter permission errors with `npm`, please fix your npm permissions or run the script with elevated privileges (though fixing permissions is recommended).
+    > **Note:** The Firestore Emulator is configured to **persist data**. It loads from and saves to the `emulator-data/` directory automatically. You only need to seed data once.
+
+    > **UI:** Use the Emulator UI at `http://localhost:4000` to inspect your local database.
 
 ---
 
@@ -82,5 +90,7 @@ This will:
     - **routes/**: Route handlers.
   - **requirements.txt**: Python dependencies.
 - **docs/**: Documentation for developers.
+- **migrations/**: Scripts for data seeding and migration.
 - **start_dev.py**: Development entry point script.
 - **deploy.sh**: Deployment script.
+- **emulator-data/**: Local data storage for Firestore emulator persistence.

@@ -2,7 +2,7 @@
 
 **Big Fish** is a comprehensive guild management dashboard. It provides a centralized hub for tracking gear, managing MVP spawns, organizing events, and coordinating guild activities.
 
-Currently hosted here: https://big-fish-9dbec.web.app/
+Currently hosted here: https://big-fish-9dbec.web.app
 
 ## Purpose
 
@@ -64,30 +64,30 @@ Currently hosted here: https://big-fish-9dbec.web.app/
 - **Storage**: LocalStorage for theme/tab persistence
 - **External Data**: RateMyServer MVP sprites and database links
 - **Backend**: FastAPI (Python)
+- **Database**: Firestore (Emulator for local dev)
 
 ## Getting Started
 
-### Backend
+### Prerequisites
 
-The backend server can be started using the provided script:
+- Python 3.10+
+- Node.js 20+
+- Java 11+ (for Firestore Emulator)
+- Firebase CLI (`npm install -g firebase-tools`)
+
+### Running Locally
+
+The entire stack can be started using the provided script:
 
 ```bash
 python start_dev.py
 ```
 
-This will start the FastAPI server on `http://localhost:8000`.
+This will start:
 
-### Frontend
-
-The frontend is now a React.js application. To run it:
-
-```bash
-cd client
-npm install
-npm run dev
-```
-
-The React app will be available at `http://localhost:5173` and will connect to the backend API at `http://localhost:8000`.
+1. **Backend API** on `http://localhost:8000`
+2. **Frontend App** on `http://localhost:5173`
+3. **Firestore Emulator** on `http://localhost:8081` (UI on port 4000)
 
 ## Usage
 
