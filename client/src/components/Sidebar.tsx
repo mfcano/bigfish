@@ -1,6 +1,11 @@
 import { useTheme } from "../contexts/ThemeContext";
 
-const Sidebar = ({ currentTab, setTab }) => {
+interface SidebarProps {
+  currentTab: string;
+  setTab: (tab: string) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ currentTab, setTab }) => {
   const { currentTheme, getNavClass, getTextClass } = useTheme();
 
   const tabs = [

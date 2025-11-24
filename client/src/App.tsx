@@ -10,11 +10,11 @@ import Events from "./components/Events";
 import Account from "./components/Account";
 import Login from "./components/Login";
 import { auth } from "./firebase";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, type User } from "firebase/auth";
 
 const AppContent = () => {
   const [currentTab, setCurrentTab] = useState("home");
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null as User | null);
   const [loading, setLoading] = useState(true);
   const { getBodyClass } = useTheme();
   const { serverTime, localTime } = useTime();
@@ -34,7 +34,7 @@ const AppContent = () => {
     }
   }, []);
 
-  const handleSetTab = (tabId) => {
+  const handleSetTab = (tabId: string) => {
     setCurrentTab(tabId);
     localStorage.setItem("currentTab", tabId);
   };

@@ -159,7 +159,7 @@ const Events = () => {
     return ''
   }
 
-  const handleVote = (pollId, optionId) => {
+  const handleVote = (pollId: number, optionId: string) => {
     alert('Vote cast! (This is a frontend demo)')
   }
 

@@ -1,6 +1,6 @@
 import { useTheme } from '../contexts/ThemeContext'
 
-const Home = ({ setTab }) => {
+const Home = ({ setTab }: any) => {
   const { currentTheme, getCardClass, getTextClass, getSubTextClass } =
     useTheme()
 

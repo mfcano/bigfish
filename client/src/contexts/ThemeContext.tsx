@@ -2,8 +2,9 @@ import React, { createContext, useContext, useState, useEffect } from 'react'
 import { doc, getDoc } from 'firebase/firestore'
 import { auth, db } from '../firebase'
 import { onAuthStateChanged } from 'firebase/auth'
+import { type ThemeContextType } from '../types/ThemeContextType'
 
-const ThemeContext = createContext()
+const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export const useTheme = () => {
   const context = useContext(ThemeContext)
@@ -13,7 +14,7 @@ export const useTheme = () => {
   return context
 }
 
-export const ThemeProvider = ({ children }) => {
+export const ThemeProvider = ({ children }: { children: any }) => {
   const [currentTheme, setCurrentTheme] = useState('dark')
 
   // Load theme from local storage first
@@ -45,7 +46,7 @@ export const ThemeProvider = ({ children }) => {
     return () => unsubscribe()
   }, [])
 
-  const applyTheme = (theme) => {
+  const applyTheme = (theme: string) => {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark')
     } else {
@@ -61,13 +62,13 @@ export const ThemeProvider = ({ children }) => {
     }
   }
 
-  const setTheme = (theme) => {
+  const setTheme = (theme: string) => {
     setCurrentTheme(theme)
     applyTheme(theme)
     localStorage.setItem('theme', theme)
   }
 
-  const getNavClass = (tabId, currentTab) => {
+  const getNavClass = (tabId: string, currentTab: string) => {
     const isActive = currentTab === tabId
     if (currentTheme === 'light') {
       return isActive
@@ -166,7 +167,7 @@ export const ThemeProvider = ({ children }) => {
     return 'text-[#000000]'
   }
 
-  const getBadgeClass = (paid) => {
+  const getBadgeClass = (paid: any) => {
     if (paid) {
       if (currentTheme === 'dark') return 'bg-green-900 text-green-300'
       if (currentTheme === 'light') return 'bg-green-100 text-green-800'
@@ -186,7 +187,7 @@ export const ThemeProvider = ({ children }) => {
     }
   }
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     if (status === 'alive') {
       if (currentTheme === 'dark')
         return 'bg-green-900 text-green-300 border border-green-700'
@@ -210,7 +211,7 @@ export const ThemeProvider = ({ children }) => {
     }
   }
 
-  const getRoleBadgeClass = (filled, needed) => {
+  const getRoleBadgeClass = (filled: any, needed: any) => {
     const isFull = filled >= needed
     if (isFull) {
       if (currentTheme === 'dark')

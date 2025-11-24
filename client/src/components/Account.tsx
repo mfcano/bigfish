@@ -9,7 +9,7 @@ const API_BASE =
     ? "https://api-dyd6pxy55a-uc.a.run.app"
     : "http://localhost:8000");
 
-const Account = ({ user }) => {
+const Account = ({ user }: any) => {
   const [displayName, setDisplayName] = useState(user?.displayName || "");
   const [message, setMessage] = useState({ type: "", text: "" });
   const [loading, setLoading] = useState(false);
@@ -120,7 +120,7 @@ const Account = ({ user }) => {
     return "bg-gray-50 border-gray-300 text-gray-900";
   };
 
-  const getMessageClass = (type) => {
+  const getMessageClass = (type: string) => {
     if (type === "success") {
       if (currentTheme === "cute")
         return "bg-emerald-900/30 text-emerald-200 border border-emerald-500/30";

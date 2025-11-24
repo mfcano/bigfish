@@ -3,7 +3,15 @@ import { useTheme } from '../contexts/ThemeContext'
 import { auth } from '../firebase'
 import { signOut } from 'firebase/auth'
 
-const Navigation = ({ currentTab, setTab, serverTime, localTime, user }) => {
+type NavigationProps = {
+  currentTab: string
+  setTab: (tab: string) => void
+  serverTime: Date
+  localTime: Date
+  user: any
+}
+
+const Navigation = ({ currentTab, setTab, serverTime, localTime, user }: NavigationProps) => {
   const {
     currentTheme,
     getNavButtonClass,
