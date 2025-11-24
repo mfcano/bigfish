@@ -270,7 +270,7 @@ const MvpCard = ({
       )}
 
       <img
-        src={`https://db.irowiki.org/image/monster/${mvp.id}.png`}
+        src={`https://ratemyserver.net/mobs/${mvp.id}.gif`}
         alt={mvp.name}
         className="pixelated absolute z-10"
         style={{
