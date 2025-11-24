@@ -66,8 +66,8 @@ const AppContent = () => {
       <Navigation
         currentTab={currentTab}
         setTab={handleSetTab}
-        serverTime={new Date(serverTime)}
-        localTime={new Date(localTime)}
+        serverTime={serverTime}
+        localTime={localTime}
         user={user}
       />
 

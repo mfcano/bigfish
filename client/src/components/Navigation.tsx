@@ -6,8 +6,8 @@ import { signOut } from 'firebase/auth'
 type NavigationProps = {
   currentTab: string
   setTab: (tab: string) => void
-  serverTime: Date
-  localTime: Date
+  serverTime: string
+  localTime: string
   user: any
 }
 
