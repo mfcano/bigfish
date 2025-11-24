@@ -1,6 +1,7 @@
 import { useTheme } from "../../contexts/ThemeContext";
 import { useMvps } from "../../hooks/useMvps";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import useImages from "../../hooks/useImages";
 
 const MvpTracker = () => {
   const {
@@ -219,6 +220,29 @@ const MvpCard = ({
   const [selectedLocation, setSelectedLocation] = useState(0);
   const location = mvp.locations[selectedLocation];
   const hasMultipleLocations = mvp.locations.length > 1;
+  const { getServerImage } = useImages();
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const externalImgUrl = `https://ratemyserver.net/mobs/${mvp.id}.gif`;
+
+  useEffect(() => {
+    let mounted = true;
+    // Try server first, fall back to external URL
+    (async () => {
+      try {
+        const url = await getServerImage(`${mvp.id}.gif`);
+        if (!mounted) return;
+        if (url) setImageSrc(url);
+        else setImageSrc(externalImgUrl);
+      } catch (e) {
+        if (!mounted) return;
+        setImageSrc(externalImgUrl);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [mvp.id]);
 
   const getStatusIndicatorGradient = (status) => {
     if (status === "alive") {
@@ -270,7 +294,7 @@ const MvpCard = ({
       )}
 
       <img
-        src={`https://db.irowiki.org/image/monster/${mvp.id}.png`}
+        src={imageSrc ?? externalImgUrl}
         alt={mvp.name}
         className="pixelated absolute z-10"
         style={{
@@ -280,7 +304,10 @@ const MvpCard = ({
           top: "45%",
           transform: "translate(-50%, -50%) scale(2.5)",
         }}
-        onError={(e) => (e.target.style.display = "none")}
+        onError={(e) => {
+          const target = e.target as HTMLImageElement;
+          target.style.display = "none";
+        }}
       />
 
       {currentTheme !== "cute" && (

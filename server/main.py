@@ -7,7 +7,7 @@ import sys
 # Add the current directory to sys.path to allow importing 'app' module
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from app.routes import mvp, user
+from app.routes import mvp, user, images
 
 # Initialize Firebase Admin
 # Use GOOGLE_APPLICATION_CREDENTIALS env var or default credentials
@@ -87,6 +87,17 @@ def api(req: https_fn.Request) -> https_fn.Response:
             user_id = parts[2]
             if req.method == 'POST':
                 return user.upload_avatar(req, headers, user_id)
+
+    # --- IMAGES ---
+    # GET /images/<name> -> check storage and return public url
+    if path.startswith('/images'):
+        # POST /images -> save external image into storage
+        if path == '/images' and req.method == 'POST':
+            return images.save_image(req, headers)
+        # GET /images/<name>
+        if path.startswith('/images/') and req.method == 'GET':
+            image_name = path.split('/')[-1]
+            return images.get_image(req, headers, image_name)
 
     # /users/<id>
     if path.startswith('/users/'):
