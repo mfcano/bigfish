@@ -71,7 +71,7 @@ const AppContent = () => {
         user={user}
       />
 
-      <div className="flex flex-grow relative h-[calc(100vh-4rem)]">
+      <div className="flex flex-col-reverse md:flex-row flex-grow relative h-[calc(100vh-4rem)]">
         <Sidebar currentTab={currentTab} setTab={handleSetTab} />
 
         <main className="flex-grow container mx-auto px-4 py-8 w-full overflow-x-hidden overflow-y-auto">
