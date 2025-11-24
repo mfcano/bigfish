@@ -1,5 +1,5 @@
-import { useTheme } from "../contexts/ThemeContext";
-import { useMvps } from "../hooks/useMvps";
+import { useTheme } from "../../contexts/ThemeContext";
+import { useMvps } from "../../hooks/useMvps";
 import { useState } from "react";
 
 const MvpTracker = () => {

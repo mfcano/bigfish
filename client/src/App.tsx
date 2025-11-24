@@ -4,9 +4,9 @@ import { useTime } from "./hooks/useTime";
 import Navigation from "./components/Navigation";
 import Sidebar from "./components/Sidebar";
 import Home from "./components/Home";
-import GearStorage from "./components/GearStorage";
-import MvpTracker from "./components/MvpTracker";
-import Events from "./components/Events";
+import GearStorage from "./components/GearStorage/GearStorage";
+import MvpTracker from "./components/MvpTracker/MvpTracker";
+import Events from "./components/Events/Events";
 import Account from "./components/Account";
 import Login from "./components/Login";
 import { auth } from "./firebase";
@@ -66,8 +66,8 @@ const AppContent = () => {
       <Navigation
         currentTab={currentTab}
         setTab={handleSetTab}
-        serverTime={serverTime}
-        localTime={localTime}
+        serverTime={new Date(serverTime)}
+        localTime={new Date(localTime)}
         user={user}
       />
 
