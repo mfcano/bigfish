@@ -21,7 +21,7 @@ export const useTheme = () => {
 
 export const ThemeProvider = ({ children }: { children: any }) => {
   const [currentTheme, setCurrentTheme] = useState('dark')
-  const [mvpLayout, setMvpLayoutState] = useState('left')
+  const [mvpLayout, setMvpLayoutState] = useState('right')
 
   // Load theme and layout from local storage first
   useEffect(() => {
