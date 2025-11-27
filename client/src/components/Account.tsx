@@ -20,7 +20,7 @@ const Account = ({ user }: any) => {
     mvpLayout,
     setMvpLayout,
     getCardClass,
-    getButtonClass,
+    getPrimaryButtonClass,
     getTextClass,
     getSubTextClass,
   } = useTheme();
@@ -336,8 +336,8 @@ const Account = ({ user }: any) => {
             type="submit"
             disabled={loading}
             className={`w-full sm:w-auto px-5 py-2.5 text-center font-medium rounded-lg text-sm transition-colors ${
-              getButtonClass
-                ? getButtonClass()
+              getPrimaryButtonClass
+                ? getPrimaryButtonClass()
                 : "bg-blue-700 text-white hover:bg-blue-800"
             }`}
           >

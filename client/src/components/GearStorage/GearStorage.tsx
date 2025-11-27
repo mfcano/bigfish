@@ -1,6 +1,7 @@
 import { useTheme } from "../../contexts/ThemeContext"
+import LoanItemModal from "./LoanItemModal"
 
-const GearStorage = () => {
+export default function GearStorage() {
   const {
     currentTheme,
     getCardClass,
@@ -119,19 +120,7 @@ const GearStorage = () => {
               <h3 className={`text-lg font-semibold ${getTextClass()}`}>
                 Active Loans
               </h3>
-              <button
-                className={`text-sm px-3 py-1 rounded transition-colors ${
-                  currentTheme === 'light'
-                    ? 'bg-slate-200 hover:bg-slate-300 text-slate-900'
-                    : currentTheme === 'dark'
-                    ? 'bg-guild-700 hover:bg-guild-600 text-white'
-                    : currentTheme === 'cute'
-                    ? 'bg-pink-900/30 hover:bg-pink-800/50 text-pink-100 border border-pink-500/20'
-                    : 'bg-[#FF0000] text-[#FFFF00] border-2 border-white hover:bg-[#00FF00] hover:text-[#0000FF] font-bold'
-                }`}
-              >
-                <i className="fa-solid fa-plus mr-1"></i> Loan Item
-              </button>
+              <LoanItemModal></LoanItemModal>
             </div>
           )}
           <div className="overflow-x-auto">
@@ -243,6 +232,4 @@ const GearStorage = () => {
     </>
   )
 }
-
-export default GearStorage
 

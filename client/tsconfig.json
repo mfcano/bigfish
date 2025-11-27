@@ -15,7 +15,11 @@
     "noUncheckedIndexedAccess": true,
     "lib": ["es2022", "dom", "dom.iterable"],
     "jsx": "react-jsx",
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/"]
+    }
   },
   
   "include": ["src"]

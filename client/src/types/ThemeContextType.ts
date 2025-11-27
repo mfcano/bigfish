@@ -7,7 +7,8 @@ export interface ThemeContextType {
   getTitleClass: () => string,
   getTimeClass: () => string,
   getCardClass: () => string,
-  getButtonClass: () => string,
+  getPrimaryButtonClass: () => string,
+  getSecondaryButtonClass: () => string,
   getTextClass: () => string,
   getSubTextClass: () => string,
   getBadgeClass: (paid: any) => string,
@@ -16,4 +17,5 @@ export interface ThemeContextType {
   getBodyClass: () => string,
   mvpLayout: string;
   setMvpLayout: (layout: string) => void;
+  getInputClass: () => string
 }

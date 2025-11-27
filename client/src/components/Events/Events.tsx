@@ -1,6 +1,6 @@
 import { useTheme } from '../../contexts/ThemeContext'
 
-const Events = () => {
+export default function Events() {
   const {
     currentTheme,
     getCardClass,
@@ -352,6 +352,4 @@ const Events = () => {
     </>
   )
 }
-
-export default Events
 

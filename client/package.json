@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "firebase": "^10.14.1",
+    "@headlessui/react": "^2.2.9",
     "firebaseui": "^6.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
