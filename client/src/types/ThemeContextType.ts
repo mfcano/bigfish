@@ -7,11 +7,13 @@ export interface ThemeContextType {
   getTitleClass: () => string,
   getTimeClass: () => string,
   getCardClass: () => string,
-  getButtonClass: () => string,
+  getPrimaryButtonClass: () => string,
+  getSecondaryButtonClass: () => string,
   getTextClass: () => string,
   getSubTextClass: () => string,
   getBadgeClass: (paid: any) => string,
   getStatusColor: (status: string) => string,
   getRoleBadgeClass: (filled: any, need: any) => string,
   getBodyClass: () => string,
+  getInputClass: () => string
 }

@@ -143,12 +143,19 @@ export const ThemeProvider = ({ children }: { children: any }) => {
     return 'theme-rms-card'
   }
 
-  const getButtonClass = () => {
-     if (currentTheme === 'light') return 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500'
-     if (currentTheme === 'dark') return 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500'
-     if (currentTheme === 'cute') return 'bg-pink-400 text-white hover:bg-pink-500 focus:ring-pink-300'
-     if (currentTheme === 'mesi') return 'bg-[#FFFF00] text-[#0000FF] hover:bg-[#0000FF] hover:text-[#FFFF00] font-black border-4 border-[#0000FF] hover:border-[#FFFF00]'
-     return 'bg-blue-700 text-white hover:bg-blue-800'
+  const getPrimaryButtonClass = () => {
+    if (currentTheme === 'light') return 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500'
+    if (currentTheme === 'dark') return 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500'
+    if (currentTheme === 'cute') return 'bg-pink-400 text-white hover:bg-pink-500 focus:ring-pink-300'
+    if (currentTheme === 'mesi') return 'bg-[#FFFF00] text-[#0000FF] hover:bg-[#0000FF] hover:text-[#FFFF00] font-black border-4 border-[#0000FF] hover:border-[#FFFF00]'
+    return 'bg-blue-700 text-white hover:bg-blue-800'
+  }
+
+  const getSecondaryButtonClass = () => {
+    if (currentTheme === 'light') return 'bg-slate-200 hover:bg-slate-300 text-slate-900'
+    if (currentTheme === 'dark') return 'bg-guild-700 hover:bg-guild-600 text-white'
+    if (currentTheme === 'cute') return 'bg-pink-900/30 hover:bg-pink-800/50 text-pink-100 border border-pink-500/20'
+    return 'bg-[#FF0000] text-[#FFFF00] border-2 border-white hover:bg-[#00FF00] hover:text-[#0000FF] font-bold'
   }
 
   const getTextClass = () => {
@@ -246,6 +253,18 @@ export const ThemeProvider = ({ children }: { children: any }) => {
       return 'bg-[#0000FF] text-white font-mono selection:bg-[#FFFF00] selection:text-[#0000FF]'
     return 'theme-rms'
   }
+''
+  const getInputClass = () => {
+    if (currentTheme === 'light')
+      return 'block min-w-0 grow bg-slate-500/20 text-slate-800 py-1.5 pr-3 pl-1 text-base text-slate-800 placeholder:text-gray-500 focus:outline-none sm:text-sm/6 rounded transition-colors hover:text-slate-900 hover:bg-slate-100'
+    if (currentTheme === 'dark') 
+      return 'block min-w-0 grow bg-guild-800/70 text-slate-200 py-1.5 pr-3 pl-1 text-base text-white placeholder:text-gray-500 focus:outline-none sm:text-sm/6 rounded transition-colors hover:text-white hover:bg-guild-700'
+    if (currentTheme === 'cute')
+      return 'block min-w-0 grow bg-pink-900/20  text-pink-50 selection:bg-pink-500 selection:text-white py-1.5 pr-3 pl-1 text-base text-white placeholder:text-gray-500 focus:outline-none sm:text-sm/6 rounded transition-colors hover:text-pink-100 hover:bg-pink-500/20'
+    if (currentTheme === 'mesi')
+      return 'block min-w-0 grow bg-[#0000FF] text-white font-mono selection:bg-[#FFFF00] selection:text-[#0000FF] py-1.5 pr-3 pl-1 text-base text-white placeholder:text-gray-500 focus:outline-none sm:text-sm/6 rounded transition-colors hover:bg-[#FFFF00] hover:text-[#0000FF]'
+    return 'text-white hover:bg-white/20' //TODO
+  }
 
   return (
     <ThemeContext.Provider
@@ -258,13 +277,15 @@ export const ThemeProvider = ({ children }: { children: any }) => {
         getTitleClass,
         getTimeClass,
         getCardClass,
-        getButtonClass,
+        getPrimaryButtonClass,
+        getSecondaryButtonClass,
         getTextClass,
         getSubTextClass,
         getBadgeClass,
         getStatusColor,
         getRoleBadgeClass,
         getBodyClass,
+        getInputClass
       }}
     >
       {children}
