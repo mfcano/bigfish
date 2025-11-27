@@ -62,7 +62,7 @@ def api(req: https_fn.Request) -> https_fn.Response:
     headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Content-Type': 'application/json'
     }
 
@@ -91,6 +91,11 @@ def api(req: https_fn.Request) -> https_fn.Response:
             return mvp.get_mvp(req, headers, mvp_id)
         if req.method == 'PUT':
             return mvp.update_mvp(req, headers, mvp_id)
+
+    # /users
+    if path == '/users':
+        if req.method == 'GET':
+            return user.get_all_users(req, headers)
 
     # /users/<id>/avatar
     if '/users/' in path and path.endswith('/avatar'):

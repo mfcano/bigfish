@@ -17,6 +17,8 @@ const Account = ({ user }: any) => {
   const {
     currentTheme,
     setTheme,
+    mvpLayout,
+    setMvpLayout,
     getCardClass,
     getButtonClass,
     getTextClass,
@@ -32,7 +34,7 @@ const Account = ({ user }: any) => {
     { id: "rms", label: "Ragnarok 2005", icon: "fa-scroll" },
   ];
 
-  const handleAvatarChange = async (e) => {
+  const handleAvatarChange = async (e: any) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -57,10 +59,12 @@ const Account = ({ user }: any) => {
       setMessage({ type: "success", text: "Avatar updated successfully!" });
 
       // Force auth token refresh to get new photo URL immediately
-      await auth.currentUser.reload();
+      if (auth.currentUser) {
+        await auth.currentUser.reload();
+      }
       // Trigger a re-render of the user state in App if possible, or we rely on auth listener
       // Note: The user prop might not update immediately without a reload/refresh in some architectures
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error uploading avatar:", error);
       setMessage({ type: "error", text: error.message });
     } finally {
@@ -68,7 +72,7 @@ const Account = ({ user }: any) => {
     }
   };
 
-  const handleSaveSettings = async (e) => {
+  const handleSaveSettings = async (e: any) => {
     e.preventDefault();
     setLoading(true);
     setMessage({ type: "", text: "" });
@@ -79,12 +83,12 @@ const Account = ({ user }: any) => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          // Note: In a real app, you'd send an Auth Token here for verification
-          // 'Authorization': `Bearer ${await user.getIdToken()}`
+          'Authorization': `Bearer ${await user.getIdToken()}`
         },
-        body: JSON.stringify({
+          body: JSON.stringify({
           displayName,
           theme: currentTheme,
+          mvpLayout,
         }),
       });
 
@@ -96,8 +100,10 @@ const Account = ({ user }: any) => {
       setMessage({ type: "success", text: "Settings updated successfully!" });
 
       // Force auth token refresh to get new display name immediately if it changed
-      await auth.currentUser.reload();
-    } catch (error) {
+      if (auth.currentUser) {
+        await auth.currentUser.reload();
+      }
+    } catch (error: any) {
       console.error("Error updating settings:", error);
       setMessage({
         type: "error",
@@ -271,6 +277,47 @@ const Account = ({ user }: any) => {
                   )}
                 </button>
               ))}
+            </div>
+          </div>
+
+          {/* MVP Layout Preference */}
+          <div>
+            <label
+              className={`block mb-2 text-sm font-medium ${getTextClass()}`}
+            >
+              MVP Tracker Layout
+            </label>
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={() => setMvpLayout('left')}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all ${
+                  mvpLayout === 'left'
+                    ? "ring-2 ring-offset-2 ring-blue-500 border-transparent"
+                    : "border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+                } ${getInputClass()}`}
+              >
+                <i className="fa-solid fa-align-left"></i>
+                <span className="font-medium">Left Align</span>
+                {mvpLayout === 'left' && (
+                  <i className="fa-solid fa-check ml-2 text-blue-500"></i>
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => setMvpLayout('right')}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all ${
+                  mvpLayout === 'right'
+                    ? "ring-2 ring-offset-2 ring-blue-500 border-transparent"
+                    : "border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+                } ${getInputClass()}`}
+              >
+                <span className="font-medium">Right Align</span>
+                <i className="fa-solid fa-align-right"></i>
+                {mvpLayout === 'right' && (
+                  <i className="fa-solid fa-check ml-2 text-blue-500"></i>
+                )}
+              </button>
             </div>
           </div>
 

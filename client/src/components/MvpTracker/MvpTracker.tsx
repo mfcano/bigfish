@@ -9,6 +9,7 @@ const MvpTracker = () => {
     getTextClass,
     getSubTextClass,
     getStatusColor,
+    mvpLayout,
   } = useTheme();
   const { mvps, loading, reportKill } = useMvps();
 
@@ -236,6 +237,7 @@ const MvpTracker = () => {
               key={mvp.id}
               mvp={mvp}
               currentTheme={currentTheme}
+              mvpLayout={mvpLayout}
               getMvpCardClass={getMvpCardClass}
               getStatusColor={getStatusColor}
               getMvpNameClass={getMvpNameClass}
@@ -255,6 +257,7 @@ const MvpTracker = () => {
 const MvpCard = ({
   mvp,
   currentTheme,
+  mvpLayout,
   getMvpCardClass,
   getStatusColor,
   getMvpNameClass,
@@ -324,7 +327,7 @@ const MvpCard = ({
         style={{
           imageRendering: "pixelated",
           maxHeight: "68px",
-          left: "70%",
+          left: mvpLayout === 'right' ? "30%" : "70%",
           top: "45%",
           transform: "translate(-50%, -50%) scale(2.5)",
         }}
@@ -357,7 +360,7 @@ const MvpCard = ({
 
       <div className="flex-grow"></div>
 
-      <div className="z-30 relative">
+      <div className={`z-30 relative ${mvpLayout === 'right' ? 'text-right' : ''}`}>
         <div className="mb-3">
           <a
             href={`https://ratemyserver.net/index.php?page=mob_db&mob_id=${mvp.id}`}
@@ -380,7 +383,7 @@ const MvpCard = ({
             <p className={`text-xs uppercase mb-2 ${getSubTextClass()}`}>
               Select Location
             </p>
-            <div className="flex flex-wrap gap-2">
+            <div className={`flex flex-wrap gap-2 ${mvpLayout === 'right' ? 'justify-end' : ''}`}>
               {mvp.locations.map((loc: any, idx: number) => (
                 <button
                   key={loc._id}

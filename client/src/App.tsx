@@ -8,6 +8,7 @@ import GearStorage from "./components/GearStorage/GearStorage";
 import MvpTracker from "./components/MvpTracker/MvpTracker";
 import Events from "./components/Events/Events";
 import Account from "./components/Account";
+import Members from "./components/Members";
 import Login from "./components/Login";
 import { auth } from "./firebase";
 import { onAuthStateChanged, type User } from "firebase/auth";
@@ -76,6 +77,7 @@ const AppContent = () => {
 
         <main className="flex-grow container mx-auto px-4 py-8 w-full overflow-x-hidden overflow-y-auto">
           {currentTab === "home" && <Home setTab={handleSetTab} />}
+          {currentTab === "members" && <Members />}
           {currentTab === "gear" && <GearStorage />}
           {currentTab === "mvp" && <MvpTracker />}
           {currentTab === "events" && <Events />}

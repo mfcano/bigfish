@@ -10,6 +10,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, setTab }) => {
 
   const tabs = [
     { id: "home", label: "Home", icon: "fa-home" },
+    { id: "members", label: "Members", icon: "fa-users" },
     { id: "gear", label: "Gear Storage", icon: "fa-box-open" },
     { id: "mvp", label: "MVP Tracker", icon: "fa-skull" },
     { id: "events", label: "Events", icon: "fa-calendar-alt" },

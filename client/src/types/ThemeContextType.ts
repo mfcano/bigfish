@@ -14,4 +14,6 @@ export interface ThemeContextType {
   getStatusColor: (status: string) => string,
   getRoleBadgeClass: (filled: any, need: any) => string,
   getBodyClass: () => string,
+  mvpLayout: string;
+  setMvpLayout: (layout: string) => void;
 }

@@ -1,8 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { doc, getDoc } from 'firebase/firestore'
-import { auth, db } from '../firebase'
+import { auth } from '../firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import { type ThemeContextType } from '../types/ThemeContextType'
+
+const API_BASE =
+  import.meta.env.VITE_API_BASE ||
+  (import.meta.env.PROD
+    ? "https://api-dyd6pxy55a-uc.a.run.app"
+    : "http://localhost:8000");
 
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
@@ -16,8 +21,9 @@ export const useTheme = () => {
 
 export const ThemeProvider = ({ children }: { children: any }) => {
   const [currentTheme, setCurrentTheme] = useState('dark')
+  const [mvpLayout, setMvpLayoutState] = useState('left')
 
-  // Load theme from local storage first
+  // Load theme and layout from local storage first
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme')
     if (savedTheme) {
@@ -26,17 +32,33 @@ export const ThemeProvider = ({ children }: { children: any }) => {
     } else {
       applyTheme('dark')
     }
+
+    const savedLayout = localStorage.getItem('mvpLayout')
+    if (savedLayout) {
+      setMvpLayoutState(savedLayout)
+    }
   }, [])
 
-  // Listen for auth changes to load user preference from Firestore
+  // Listen for auth changes to load user preference from API
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
-          const userDoc = await getDoc(doc(db, 'users', user.uid))
-          if (userDoc.exists() && userDoc.data().theme) {
-            const remoteTheme = userDoc.data().theme
-            setTheme(remoteTheme) // This updates state and local storage
+          const token = await user.getIdToken();
+          const response = await fetch(`${API_BASE}/users/${user.uid}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.theme) {
+              setTheme(data.theme) // This updates state and local storage
+            }
+            if (data.mvp_layout) {
+              setMvpLayout(data.mvp_layout)
+            }
           }
         } catch (error) {
           console.error('Error loading theme preference:', error)
@@ -66,6 +88,11 @@ export const ThemeProvider = ({ children }: { children: any }) => {
     setCurrentTheme(theme)
     applyTheme(theme)
     localStorage.setItem('theme', theme)
+  }
+
+  const setMvpLayout = (layout: string) => {
+    setMvpLayoutState(layout)
+    localStorage.setItem('mvpLayout', layout)
   }
 
   const getNavClass = (tabId: string, currentTab: string) => {
@@ -265,6 +292,8 @@ export const ThemeProvider = ({ children }: { children: any }) => {
         getStatusColor,
         getRoleBadgeClass,
         getBodyClass,
+        mvpLayout,
+        setMvpLayout,
       }}
     >
       {children}
