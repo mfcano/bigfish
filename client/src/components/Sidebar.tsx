@@ -14,6 +14,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, setTab }) => {
     { id: "gear", label: "Gear Storage", icon: "fa-box-open" },
     { id: "mvp", label: "MVP Tracker", icon: "fa-skull" },
     { id: "events", label: "Events", icon: "fa-calendar-alt" },
+    { id: "monsters", label: "Monster DB", icon: "fa-book-dead" },
   ];
 
   const getSidebarClass = () => {

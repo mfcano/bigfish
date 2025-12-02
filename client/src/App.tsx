@@ -7,6 +7,7 @@ import Home from "./components/Home";
 import GearStorage from "./components/GearStorage/GearStorage";
 import MvpTracker from "./components/MvpTracker/MvpTracker";
 import Events from "./components/Events/Events";
+import MonsterSearch from "./components/Database/MonsterSearch";
 import Account from "./components/Account";
 import Members from "./components/Members";
 import Login from "./components/Login";
@@ -81,6 +82,7 @@ const AppContent = () => {
           {currentTab === "gear" && <GearStorage />}
           {currentTab === "mvp" && <MvpTracker />}
           {currentTab === "events" && <Events />}
+          {currentTab === "monsters" && <MonsterSearch />}
           {currentTab === "account" && <Account user={user} />}
         </main>
       </div>

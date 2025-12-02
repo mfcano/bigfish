@@ -1,6 +1,17 @@
 {
   "hosting": {
     "public": "client/dist",
+    "headers": [
+      {
+        "source": "/data/monsters.json",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, must-revalidate"
+          }
+        ]
+      }
+    ],
     "ignore": [
       "firebase.json",
       "**/.*",
